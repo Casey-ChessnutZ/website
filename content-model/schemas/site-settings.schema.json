@@ -1,0 +1,72 @@
+{
+  "sys": {
+    "id": "siteSettings",
+    "displayField": "siteName"
+  },
+  "name": "Site Settings",
+  "description": "Global branding and SEO defaults for the website",
+  "displayField": "siteName",
+  "fields": [
+    {
+      "id": "siteName",
+      "name": "Site Name",
+      "type": "Symbol",
+      "required": true,
+      "localized": false
+    },
+    {
+      "id": "logo",
+      "name": "Logo",
+      "type": "Link",
+      "linkType": "Asset",
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "defaultSeoTitle",
+      "name": "Default SEO Title",
+      "type": "Symbol",
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "defaultSeoDescription",
+      "name": "Default SEO Description",
+      "type": "Text",
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "footerText",
+      "name": "Footer Text",
+      "type": "Text",
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "socialLinks",
+      "name": "Social Links",
+      "type": "Array",
+      "items": {
+        "type": "Object"
+      },
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "navigationItems",
+      "name": "Navigation Items",
+      "type": "Array",
+      "items": { "type": "Object" },
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "navigationConfig",
+      "name": "Navigation Configuration",
+      "type": "Object",
+      "required": false,
+      "localized": false
+    }
+  ]
+}

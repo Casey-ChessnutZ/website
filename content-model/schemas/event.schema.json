@@ -1,0 +1,135 @@
+{
+  "sys": {
+    "id": "event",
+    "displayField": "title"
+  },
+  "name": "Event",
+  "description": "Chess tournament or event listing",
+  "displayField": "title",
+  "fields": [
+    {
+      "id": "title",
+      "name": "Title",
+      "type": "Symbol",
+      "required": true,
+      "localized": false
+    },
+    {
+      "id": "slug",
+      "name": "Slug",
+      "type": "Symbol",
+      "required": true,
+      "localized": false
+    },
+    {
+      "id": "summary",
+      "name": "Summary",
+      "type": "Text",
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "description",
+      "name": "Description",
+      "type": "RichText",
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "eventDate",
+      "name": "Event Date",
+      "type": "Date",
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "locationName",
+      "name": "Location Name",
+      "type": "Symbol",
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "locationDetails",
+      "name": "Location Details",
+      "type": "Text",
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "status",
+      "name": "Status",
+      "type": "Symbol",
+      "required": false,
+      "validations": [
+        {
+          "in": ["draft", "scheduled", "published", "archived"]
+        }
+      ],
+      "defaultValue": {
+        "en-US": "scheduled"
+      },
+      "localized": false
+    },
+    {
+      "id": "heroMedia",
+      "name": "Hero Media",
+      "type": "Link",
+      "linkType": "Asset",
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "registrationUrl",
+      "name": "Registration URL",
+      "type": "Symbol",
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "format",
+      "name": "Format",
+      "type": "Symbol",
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "schedule",
+      "name": "Schedule",
+      "type": "Text",
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "prizeInformation",
+      "name": "Prize Information",
+      "type": "Text",
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "eligibility",
+      "name": "Eligibility",
+      "type": "Text",
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "organizer",
+      "name": "Organizer",
+      "type": "Symbol",
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "tags",
+      "name": "Tags",
+      "type": "Array",
+      "items": {
+        "type": "Symbol"
+      },
+      "required": false,
+      "localized": false
+    }
+  ]
+}

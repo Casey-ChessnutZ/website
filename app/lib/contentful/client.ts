@@ -1,0 +1,72 @@
+const CONTENTFUL_DELIVERY_URL = 'https://cdn.contentful.com';
+const CONTENTFUL_PREVIEW_URL = 'https://preview.contentful.com';
+
+type ContentfulClientConfig = {
+  spaceId: string;
+  accessToken: string;
+  environment: string;
+  preview: boolean;
+};
+
+function getContentfulConfig(): ContentfulClientConfig | null {
+  if (process.env.CONTENTFUL_OFFLINE === 'true') {
+    return null;
+  }
+
+  const spaceId = process.env.CONTENTFUL_SPACE_ID;
+  const preview = process.env.CONTENTFUL_PREVIEW === 'true';
+  const accessToken = preview
+    ? process.env.CONTENTFUL_PREVIEW_ACCESS_TOKEN
+    : process.env.CONTENTFUL_ACCESS_TOKEN;
+  const environment = process.env.CONTENTFUL_ENVIRONMENT ?? 'master';
+
+  if (!spaceId || !accessToken) {
+    return null;
+  }
+
+  return {
+    spaceId,
+    accessToken,
+    environment,
+    preview,
+  };
+}
+
+export async function contentfulFetch<T>(
+  path: string,
+  params: Record<string, string | undefined> = {},
+): Promise<T | null> {
+  const config = getContentfulConfig();
+
+  if (!config) {
+    return null;
+  }
+
+  const url = new URL(
+    `${config.preview ? CONTENTFUL_PREVIEW_URL : CONTENTFUL_DELIVERY_URL}/spaces/${config.spaceId}/environments/${config.environment}/${path}`,
+  );
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) {
+      url.searchParams.set(key, value);
+    }
+  });
+
+  try {
+    const response = await fetch(url.toString(), {
+      headers: {
+        Authorization: `Bearer ${config.accessToken}`,
+      },
+      cache: config.preview ? 'no-store' : undefined,
+      next: config.preview ? undefined : { revalidate: 60 },
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return (await response.json()) as T;
+  } catch {
+    return null;
+  }
+}

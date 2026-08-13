@@ -1,0 +1,32 @@
+{
+    "name": "casey-chessnutz-website",
+    "private": true,
+    "version": "0.0.1",
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "build:isolated": "CONTENTFUL_OFFLINE=true next build",
+        "start": "next start",
+        "lint": "eslint .",
+        "test": "node --experimental-strip-types --test tests/**/*.test.ts",
+        "verify:isolated": "CONTENTFUL_OFFLINE=true npm run test && CONTENTFUL_OFFLINE=true npm run lint && npm run build:isolated",
+        "mcp:start": "npx -y @contentful/mcp-server",
+        "migrations:run": "node scripts/run-migrations.js",
+        "contentful:sync": "node scripts/contentful-zero-touch.js"
+    },
+    "dependencies": {
+        "contentful-management": "^12.0.0",
+        "next": "^15.4.5",
+        "react": "^19.1.1",
+        "react-dom": "^19.1.1"
+    },
+    "devDependencies": {
+        "@types/node": "^22.18.0",
+        "@types/react": "^19.1.12",
+        "@types/react-dom": "^19.1.9",
+        "eslint": "^9.34.0",
+        "eslint-config-next": "^15.4.5",
+        "prettier": "^3.6.2",
+        "typescript": "^5.9.2"
+    }
+}

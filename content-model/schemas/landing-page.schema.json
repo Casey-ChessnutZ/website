@@ -1,0 +1,75 @@
+{
+  "sys": {
+    "id": "landingPage",
+    "displayField": "title"
+  },
+  "name": "Landing Page",
+  "description": "Homepage content record for tournament promotion",
+  "displayField": "title",
+  "fields": [
+    {
+      "id": "title",
+      "name": "Title",
+      "type": "Symbol",
+      "required": true,
+      "localized": false
+    },
+    {
+      "id": "slug",
+      "name": "Slug",
+      "type": "Symbol",
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "heroHeadline",
+      "name": "Hero Headline",
+      "type": "Symbol",
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "heroDescription",
+      "name": "Hero Description",
+      "type": "Text",
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "featuredEvents",
+      "name": "Featured Events",
+      "type": "Array",
+      "items": {
+        "type": "Link",
+        "linkType": "Entry"
+      },
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "sections",
+      "name": "Sections",
+      "type": "Array",
+      "items": {
+        "type": "Link",
+        "linkType": "Entry"
+      },
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "seoTitle",
+      "name": "SEO Title",
+      "type": "Symbol",
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "seoDescription",
+      "name": "SEO Description",
+      "type": "Text",
+      "required": false,
+      "localized": false
+    }
+  ]
+}
