@@ -36,6 +36,26 @@ test('plans collection and dynamic route invalidation for a slugless news deleti
   );
 });
 
+test('revalidates team routes when a person profile changes', () => {
+  assert.deepEqual(
+    createContentfulRevalidationPlan({
+      sys: { contentType: { sys: { id: 'person' } } },
+      fields: { slug: { 'en-US': 'alex-morgan' } },
+    }),
+    {
+      tags: ['contentful:person', 'contentful:person:alex-morgan', 'contentful:event'],
+      paths: [
+        { path: '/', type: 'page' },
+        { path: '/events', type: 'page' },
+        { path: '/events/[slug]', type: 'page' },
+        { path: '/team', type: 'page' },
+        { path: '/team/alex-morgan', type: 'page' },
+        { path: '/team/[slug]', type: 'page' },
+      ],
+    },
+  );
+});
+
 test('does not create a plan for unsupported content types', () => {
   assert.equal(
     createContentfulRevalidationPlan({

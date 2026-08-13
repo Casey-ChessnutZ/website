@@ -1,0 +1,8 @@
+import Link from 'next/link';
+
+import type { EventEntry } from '@/app/lib/contentful/types';
+
+export default function EventOfficials({ event }: { event: EventEntry }) {
+  if (!event.officials?.length) return null;
+  return <section className="scroll-mt-28 border-t border-rule pt-8" id="officials"><p className="mb-3 text-[0.72rem] font-bold uppercase tracking-[0.14em] text-brass">The tournament team</p><h2 className="text-[clamp(2.3rem,5vw,4rem)] leading-none">Officials</h2><div className="mt-8 grid gap-4 sm:grid-cols-2">{event.officials.map((person) => <Link className="group grid grid-cols-[5rem_1fr_auto] items-center gap-4 border border-rule bg-paper-raised p-4 text-ink no-underline transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-brass hover:shadow-editorial" href={`/team/${person.slug}`} key={person.sys.id}>{person.image?.url ? <img alt={person.image.description ?? `Portrait of ${person.name}`} className="aspect-square size-20 object-cover" height="160" src={person.image.url} width="160" /> : <span aria-hidden="true" className="grid aspect-square size-20 place-items-center bg-ink font-display text-3xl text-paper">{person.name.slice(0, 1)}</span>}<span><strong className="block font-display text-2xl leading-none">{person.name}</strong>{person.title ? <span className="mt-2 block text-[0.72rem] font-bold uppercase tracking-[0.12em] text-brass">{person.title}</span> : null}</span><span aria-hidden="true" className="text-xl text-oxblood transition-transform duration-200 group-hover:translate-x-1">→</span></Link>)}</div></section>;
+}

@@ -24,6 +24,29 @@ export function richTextToPlainText(value: unknown): string | undefined {
   return text.length ? text.join(' ').replace(/\s+/g, ' ').trim() : undefined;
 }
 
+export function normalizeScheduleItems(value: unknown): Array<{ time: string; title: string; detail?: string }> {
+  const items = Array.isArray(value)
+    ? value
+    : value && typeof value === 'object' && Array.isArray((value as { items?: unknown }).items)
+      ? (value as { items: unknown[] }).items
+      : [];
+
+  return items.flatMap((item) => {
+    if (!item || typeof item !== 'object') return [];
+    const { time, title, detail } = item as Record<string, unknown>;
+    if (typeof time !== 'string' || !time.trim() || typeof title !== 'string' || !title.trim()) return [];
+    return [{ time: time.trim(), title: title.trim(), ...(typeof detail === 'string' && detail.trim() ? { detail: detail.trim() } : {}) }];
+  });
+}
+
+export function normalizeLocation(value: unknown): { lat: number; lon: number } | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const { lat, lon } = value as Record<string, unknown>;
+  return typeof lat === 'number' && Number.isFinite(lat) && typeof lon === 'number' && Number.isFinite(lon)
+    ? { lat, lon }
+    : undefined;
+}
+
 export function toRichTextDocument(value: unknown) {
   if (!value || typeof value !== 'object') return undefined;
   const document = value as { nodeType?: unknown; content?: unknown };

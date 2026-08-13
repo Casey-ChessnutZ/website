@@ -109,6 +109,9 @@ export type EventEntry = {
   eventDate?: string;
   locationName?: string;
   locationDetails?: string;
+  venueAddress?: string;
+  venueLocation?: { lat: number; lon: number };
+  venueNotes?: string;
   status?: 'draft' | 'scheduled' | 'published' | 'archived';
   heroMedia?: ContentfulAsset;
   registrationUrl?: string;
@@ -116,10 +119,24 @@ export type EventEntry = {
   divisions?: EventEntry[];
   format?: string;
   schedule?: string;
+  scheduleItems?: Array<{ time: string; title: string; detail?: string }>;
   prizeInformation?: string;
   eligibility?: string;
   organizer?: string;
+  officials?: PersonEntry[];
   tags?: string[];
+};
+
+export type PersonEntry = {
+  sys: { id: string };
+  name: string;
+  slug: string;
+  title?: string;
+  fideProfileUrl?: string;
+  about?: string;
+  image?: ContentfulAsset;
+  federation?: string;
+  location?: string;
 };
 
 export type NewsEntry = {

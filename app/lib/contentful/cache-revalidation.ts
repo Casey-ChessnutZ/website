@@ -1,4 +1,4 @@
-export type ContentfulCacheType = 'event' | 'news' | 'landingPage' | 'sectionBlock' | 'siteSettings';
+export type ContentfulCacheType = 'event' | 'news' | 'landingPage' | 'sectionBlock' | 'siteSettings' | 'person';
 
 export type ContentfulRevalidationPath = {
   path: string;
@@ -23,7 +23,7 @@ type ContentfulWebhookPayload = {
   };
 };
 
-const supportedTypes = new Set<ContentfulCacheType>(['event', 'news', 'landingPage', 'sectionBlock', 'siteSettings']);
+const supportedTypes = new Set<ContentfulCacheType>(['event', 'news', 'landingPage', 'sectionBlock', 'siteSettings', 'person']);
 
 export function contentfulTags(type: ContentfulCacheType, slug?: string): string[] {
   return [`contentful:${type}`, ...(slug ? [`contentful:${type}:${slug}`] : [])];
@@ -70,6 +70,20 @@ export function createContentfulRevalidationPlan(payload: ContentfulWebhookPaylo
         { path: '/news', type: 'page' },
         ...(slug ? [{ path: `/news/${slug}`, type: 'page' as const }] : []),
         { path: '/news/[slug]', type: 'page' },
+      ],
+    };
+  }
+
+  if (type === 'person') {
+    return {
+      tags: [...contentfulTags(type, slug), ...contentfulTags('event')],
+      paths: [
+        { path: '/', type: 'page' },
+        { path: '/events', type: 'page' },
+        { path: '/events/[slug]', type: 'page' },
+        { path: '/team', type: 'page' },
+        ...(slug ? [{ path: `/team/${slug}`, type: 'page' as const }] : []),
+        { path: '/team/[slug]', type: 'page' },
       ],
     };
   }

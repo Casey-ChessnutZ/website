@@ -1,0 +1,7 @@
+import { formatEventDate } from '@/app/lib/formatting/date';
+import type { EventEntry } from '@/app/lib/contentful/types';
+
+export default function EventDesk({ event }: { event: EventEntry }) {
+  const facts = [['When', formatEventDate(event.eventDate)], ['Format', event.format], ['Where', event.locationName]].filter(([, value]) => Boolean(value));
+  return <aside className="border border-rule bg-ink p-6 text-paper lg:sticky lg:top-28"><p className="text-[0.72rem] font-bold uppercase tracking-[0.14em] text-brass">Tournament desk</p><dl className="mt-5 divide-y divide-paper/20">{facts.map(([label, value]) => <div className="py-4" key={label}><dt className="text-[0.7rem] font-bold uppercase tracking-[0.12em] text-paper/55">{label}</dt><dd className="mt-1 font-display text-2xl leading-none">{value}</dd></div>)}</dl>{event.registrationUrl ? <a className="mt-7 inline-flex min-h-12 w-full items-center justify-center bg-brass px-4 py-3 text-sm font-bold text-ink no-underline transition-colors duration-200 hover:bg-paper" href={event.registrationUrl} rel="noreferrer" target="_blank">Register now</a> : null}{event.pairingUrl ? <a className="mt-3 inline-flex min-h-11 w-full items-center justify-center border border-paper/40 px-4 py-3 text-sm font-bold text-paper no-underline transition-colors duration-200 hover:bg-paper hover:text-ink" href={event.pairingUrl} rel="noreferrer" target="_blank">View pairings</a> : null}</aside>;
+}

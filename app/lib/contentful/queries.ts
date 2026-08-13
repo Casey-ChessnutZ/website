@@ -1,6 +1,6 @@
 import { contentfulFetch } from './client';
 import { contentfulTags } from './cache-revalidation';
-import { mergeSectionBlockFields, resolveEventDivisions, richTextToPlainText, toRichTextDocument } from './mapping';
+import { mergeSectionBlockFields, normalizeLocation, normalizeScheduleItems, resolveEventDivisions, richTextToPlainText, toRichTextDocument } from './mapping';
 import type { Document } from '@contentful/rich-text-types';
 import type {
   ContentfulAsset,
@@ -12,6 +12,7 @@ import type {
   LandingPageEntry,
   SiteSettingsEntry,
   NewsEntry,
+  PersonEntry,
 } from './types';
 
 type ContentfulCollection<T> = {
@@ -44,6 +45,9 @@ type ContentfulEventItem = {
     eventDate?: string;
     locationName?: string;
     locationDetails?: string;
+    venueAddress?: string;
+    venueLocation?: unknown;
+    venueNotes?: string;
     status?: 'draft' | 'scheduled' | 'published' | 'archived';
     heroMedia?: ContentfulReference | ContentfulAsset;
     registrationUrl?: string;
@@ -51,10 +55,27 @@ type ContentfulEventItem = {
     divisions?: ContentfulReference[];
     format?: string;
     schedule?: string;
+    scheduleItems?: unknown;
+    scheduleTimeline?: unknown;
     prizeInformation?: string;
     eligibility?: string;
     organizer?: string;
+    officials?: ContentfulReference[];
     tags?: string[];
+  };
+};
+
+type ContentfulPersonItem = {
+  sys: { id: string };
+  fields: {
+    name?: string;
+    slug?: string;
+    title?: string;
+    fideProfileUrl?: string;
+    about?: unknown;
+    image?: ContentfulReference | ContentfulAsset;
+    federation?: string;
+    location?: string;
   };
 };
 
@@ -206,6 +227,7 @@ export function mapEventItem(
   includes?: ContentfulCollection<ContentfulEventItem>['includes'],
 ): EventEntry {
   const heroMedia = normalizeAsset(item.fields.heroMedia);
+  const officialEntries = resolveLinkedEntries<ContentfulEntry<ContentfulPersonItem['fields']>>(item.fields.officials, includes?.Entry);
 
   return {
     sys: item.sys,
@@ -216,6 +238,9 @@ export function mapEventItem(
     eventDate: item.fields.eventDate,
     locationName: item.fields.locationName,
     locationDetails: item.fields.locationDetails,
+    venueAddress: item.fields.venueAddress,
+    venueLocation: normalizeLocation(item.fields.venueLocation),
+    venueNotes: item.fields.venueNotes,
     status: item.fields.status,
     heroMedia,
     registrationUrl: item.fields.registrationUrl,
@@ -226,9 +251,11 @@ export function mapEventItem(
     })),
     format: item.fields.format,
     schedule: item.fields.schedule,
+    scheduleItems: normalizeScheduleItems(item.fields.scheduleTimeline ?? item.fields.scheduleItems),
     prizeInformation: item.fields.prizeInformation,
     eligibility: item.fields.eligibility,
     organizer: item.fields.organizer,
+    officials: officialEntries.map((official) => mapPersonItem({ sys: official.sys, fields: official.fields }, includes)),
     tags: item.fields.tags,
   };
 }
@@ -242,6 +269,29 @@ function mapNewsItem(item: ContentfulNewsItem): NewsEntry {
     publishedDate: item.fields.publishedDate,
     tags: item.fields.tags,
     content: toRichTextDocument(item.fields.content) as Document | undefined,
+  };
+}
+
+function mapPersonItem(
+  item: ContentfulPersonItem,
+  includes?: ContentfulCollection<ContentfulPersonItem>['includes'],
+): PersonEntry {
+  const imageReference = item.fields.image;
+  const imageId = imageReference?.sys?.id;
+  const includedImage = imageId
+    ? includes?.Asset?.find((asset) => asset.sys?.id === imageId)
+    : undefined;
+
+  return {
+    sys: item.sys,
+    name: item.fields.name ?? 'Tournament official',
+    slug: item.fields.slug ?? '',
+    title: item.fields.title,
+    fideProfileUrl: item.fields.fideProfileUrl,
+    about: richTextToPlainText(item.fields.about),
+    image: normalizeAsset(includedImage ?? imageReference),
+    federation: item.fields.federation,
+    location: item.fields.location,
   };
 }
 
@@ -334,6 +384,41 @@ export async function getPublishedNewsBySlug(slug: string): Promise<NewsEntry | 
 
   const item = response?.items?.[0];
   return item ? mapNewsItem(item) : null;
+}
+
+export async function getPublishedPersonBySlug(slug: string): Promise<PersonEntry | null> {
+  const response = await contentfulFetch<ContentfulCollection<ContentfulPersonItem>>('entries', {
+    content_type: 'person',
+    'fields.slug': slug,
+    include: '2',
+    limit: '1',
+  }, contentfulTags('person', slug));
+
+  const item = response?.items?.[0];
+  return item ? mapPersonItem(item, response?.includes) : null;
+}
+
+export async function getPublishedPeople(): Promise<PersonEntry[]> {
+  const response = await contentfulFetch<ContentfulCollection<ContentfulPersonItem>>('entries', {
+    content_type: 'person',
+    include: '2',
+    order: 'fields.name',
+    limit: '100',
+  }, contentfulTags('person'));
+
+  return (response?.items ?? []).map((item) => mapPersonItem(item, response?.includes));
+}
+
+export async function getPublishedEventsForPerson(personId: string): Promise<EventEntry[]> {
+  const response = await contentfulFetch<ContentfulCollection<ContentfulEventItem>>('entries', {
+    content_type: 'event',
+    links_to_entry: personId,
+    include: '2',
+    order: 'fields.eventDate',
+    limit: '12',
+  }, [...contentfulTags('event'), ...contentfulTags('person')]);
+
+  return (response?.items ?? []).map((item) => mapEventItem(item, response?.includes));
 }
 
 export async function getSiteSettings(): Promise<SiteSettingsEntry> {

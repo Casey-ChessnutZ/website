@@ -7,6 +7,7 @@ test('uses the safe tournament navigation when no CMS navigation is configured',
   assert.deepEqual(getPrimaryNavigation(), [
     { href: '/events', label: 'Tournaments', style: 'text' },
     { href: '/news', label: 'News', style: 'text' },
+    { href: '/team', label: 'Our Team', style: 'text' },
     { href: '/#about', label: 'About', style: 'text' },
     { href: '/events', label: 'Find an event', style: 'primary' },
   ]);

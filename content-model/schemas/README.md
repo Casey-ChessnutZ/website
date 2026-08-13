@@ -4,6 +4,7 @@ Starter schema directory for Contentful content type definitions.
 
 Included content types:
 - event.schema.json
+- person.schema.json
 - landing-page.schema.json
 - section-block.schema.json
 - site-settings.schema.json

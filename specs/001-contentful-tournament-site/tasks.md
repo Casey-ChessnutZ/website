@@ -122,6 +122,9 @@
 - [X] T049 Add News to the responsive primary navigation in both the safe fallback and seeded Site Settings configuration.
 - [X] T050 Add Contentful ISR cache tags and a signed, type- and slug-aware webhook endpoint for on-demand data and route revalidation.
 - [X] T051 Redesign the tournament calendar cards as responsive editorial tickets with date panels, metadata, accessible full-card links, and reduced-motion-safe interactions.
+- [X] T052 Redesign event detail pages as Contentful-driven tournament dossiers with venue maps, structured schedules, and linked person profiles for officials.
+- [X] T053 Add a Contentful-driven, responsive editorial Our Team directory at `/team`, with canonical `/team/[slug]` profiles and primary navigation access.
+- [X] T054 Migrate Event venue coordinates to Contentful’s native `venueLocation` field, update map rendering, and omit legacy latitude/longitude fields from delivery responses.
 
 ---
 

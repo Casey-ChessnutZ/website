@@ -1,0 +1,16 @@
+{
+  "sys": { "id": "person", "displayField": "name" },
+  "name": "Person",
+  "description": "Organiser, arbiter, or other tournament official",
+  "displayField": "name",
+  "fields": [
+    { "id": "name", "name": "Name", "type": "Symbol", "required": true, "localized": false },
+    { "id": "slug", "name": "Slug", "type": "Symbol", "required": true, "localized": false },
+    { "id": "title", "name": "Title", "type": "Symbol", "required": false, "localized": false },
+    { "id": "fideProfileUrl", "name": "FIDE Profile URL", "type": "Symbol", "required": false, "localized": false },
+    { "id": "about", "name": "About", "type": "RichText", "required": false, "localized": false },
+    { "id": "image", "name": "Portrait", "type": "Link", "linkType": "Asset", "required": false, "localized": false },
+    { "id": "federation", "name": "Federation", "type": "Symbol", "required": false, "localized": false },
+    { "id": "location", "name": "Location", "type": "Symbol", "required": false, "localized": false }
+  ]
+}

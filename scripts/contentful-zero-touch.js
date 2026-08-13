@@ -24,8 +24,8 @@ function toFieldDef(field) {
     required: Boolean(field.required),
     localized: Boolean(field.localized),
     validations: field.validations || [],
-    disabled: false,
-    omitted: false,
+    disabled: Boolean(field.disabled),
+    omitted: Boolean(field.omitted),
   };
 
   if (field.linkType) {
@@ -273,6 +273,7 @@ async function run() {
   );
 
   // 1) Sync content model
+  await upsertContentType(client, 'person.schema.json', spaceId, environmentId);
   await upsertContentType(client, 'event.schema.json', spaceId, environmentId);
   await upsertContentType(client, 'news.schema.json', spaceId, environmentId);
   await upsertContentType(client, 'section-block.schema.json', spaceId, environmentId);
@@ -329,7 +330,20 @@ async function run() {
     ctaText: { 'en-US': 'Find an event' }, ctaUrl: { 'en-US': '/events' },
   });
 
-  // 3) Seed event examples
+  // 3) Seed people and event examples
+  const alexMorgan = await upsertEntryBySlug(client, spaceId, environmentId, 'person', 'alex-morgan', {
+    name: { 'en-US': 'Alex Morgan' }, slug: { 'en-US': 'alex-morgan' }, title: { 'en-US': 'Tournament Organiser' }, federation: { 'en-US': 'Chess Victoria' }, location: { 'en-US': 'Melbourne, Australia' },
+    about: { 'en-US': richText('Alex coordinates Casey ChessnutZ tournaments with a focus on clear player communication and a welcoming tournament experience.') },
+  });
+  const priyaShah = await upsertEntryBySlug(client, spaceId, environmentId, 'person', 'priya-shah', {
+    name: { 'en-US': 'Priya Shah' }, slug: { 'en-US': 'priya-shah' }, title: { 'en-US': 'Chief Arbiter' }, federation: { 'en-US': 'FIDE' }, location: { 'en-US': 'Melbourne, Australia' }, fideProfileUrl: { 'en-US': 'https://ratings.fide.com/' },
+    about: { 'en-US': richText('Priya is responsible for fair play, tournament rulings, and the smooth running of every round.') },
+  });
+  const danielWong = await upsertEntryBySlug(client, spaceId, environmentId, 'person', 'daniel-wong', {
+    name: { 'en-US': 'Daniel Wong' }, slug: { 'en-US': 'daniel-wong' }, title: { 'en-US': 'Arbiter' }, federation: { 'en-US': 'Chess Victoria' }, location: { 'en-US': 'Melbourne, Australia' },
+    about: { 'en-US': richText('Daniel supports player check-in, pairing operations, and on-the-floor tournament assistance.') },
+  });
+
   const melbourneOpen = await upsertEntryBySlug(client, spaceId, environmentId, 'event', 'melbourne-open-2026', {
     title: { 'en-US': 'Melbourne Open 2026' }, slug: { 'en-US': 'melbourne-open-2026' },
     summary: { 'en-US': 'A five-round weekend tournament for ambitious club players and seasoned competitors.' },
@@ -338,6 +352,9 @@ async function run() {
     status: { 'en-US': 'published' }, registrationUrl: { 'en-US': 'https://example.com/melbourne-open-2026' }, format: { 'en-US': 'Five-round Swiss' },
     schedule: { 'en-US': 'Saturday: rounds 1–3 at 10:00, 13:30 and 16:30. Sunday: rounds 4–5 at 10:00 and 14:00.' }, prizeInformation: { 'en-US': 'Prize details will be published with the final entry list.' },
     eligibility: { 'en-US': 'Open to all rated players. Junior players require a parent or guardian contact on registration.' }, organizer: { 'en-US': 'Casey ChessnutZ' }, tags: { 'en-US': ['Classical', 'Open', 'Melbourne'] },
+    venueAddress: { 'en-US': '176 Little Lonsdale Street, Melbourne VIC 3000' }, venueLocation: { 'en-US': { lat: -37.8108, lon: 144.9655 } }, venueNotes: { 'en-US': 'Registration opens at the main foyer from 9:00am. The venue is a short walk from Melbourne Central station.' },
+    scheduleTimeline: { 'en-US': { items: [{ time: 'Saturday · 9:00am', title: 'Registration', detail: 'Collect your player details at the main foyer.' }, { time: 'Saturday · 10:00am', title: 'Round 1', detail: 'Boards close five minutes before the round.' }, { time: 'Saturday · 1:30pm', title: 'Round 2' }, { time: 'Saturday · 4:30pm', title: 'Round 3' }, { time: 'Sunday · 10:00am', title: 'Round 4' }, { time: 'Sunday · 2:00pm', title: 'Round 5 & presentations', detail: 'Prize presentation follows the final round.' }] } },
+    officials: { 'en-US': [{ sys: { type: 'Link', linkType: 'Entry', id: alexMorgan.sys.id } }, { sys: { type: 'Link', linkType: 'Entry', id: priyaShah.sys.id } }, { sys: { type: 'Link', linkType: 'Entry', id: danielWong.sys.id } }] },
   });
 
   const springRapid = await upsertEntryBySlug(client, spaceId, environmentId, 'event', 'spring-rapid-2026', {
@@ -471,6 +488,7 @@ async function run() {
       'en-US': { items: [
         { label: 'Tournaments', href: '/events', style: 'text', enabled: true },
         { label: 'News', href: '/news', style: 'text', enabled: true },
+        { label: 'Our Team', href: '/team', style: 'text', enabled: true },
         { label: 'About', href: '/#about', style: 'text', enabled: true },
         { label: 'Find an event', href: '/events', style: 'primary', enabled: true },
       ] },
