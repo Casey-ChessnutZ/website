@@ -31,3 +31,7 @@ The **Schedule Timeline** field is a JSON Object. Enter an object with an `items
 ## Google Maps
 
 Set `NEXT_PUBLIC_GOOGLE_MAPS_EMBED_API_KEY` in the web application's environment to enable the embedded map. Restrict that key to the Maps Embed API and the production and preview site referrers in Google Cloud. Without a key, the event page retains its venue address and directions link.
+
+## Documents & media
+
+Upload and publish PDFs, images, videos, or other event resources in the Contentful Media library, then add them to the Event’s **Documents & Media** field in the intended display order. Add an asset title for the visible card heading and a description to explain its use, such as “Read before registering” or “Venue arrival guide”. The event page automatically presents file type, file size, and a download action; it does not render an empty section when no assets are attached.

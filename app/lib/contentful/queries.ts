@@ -1,6 +1,6 @@
 import { contentfulFetch } from './client';
 import { contentfulTags } from './cache-revalidation';
-import { mergeSectionBlockFields, normalizeLocation, normalizeScheduleItems, resolveEventDivisions, richTextToPlainText, toRichTextDocument } from './mapping';
+import { mergeSectionBlockFields, normalizeLocation, normalizeScheduleItems, resolveEventDivisions, resolveRelatedEvents, richTextToPlainText, toRichTextDocument } from './mapping';
 import type { Document } from '@contentful/rich-text-types';
 import type {
   ContentfulAsset,
@@ -52,7 +52,9 @@ type ContentfulEventItem = {
     heroMedia?: ContentfulReference | ContentfulAsset;
     registrationUrl?: string;
     pairingUrl?: string;
+    documents?: ContentfulReference[];
     divisions?: ContentfulReference[];
+    relatedEvents?: ContentfulReference[];
     format?: string;
     schedule?: string;
     scheduleItems?: unknown;
@@ -166,6 +168,18 @@ function resolveLinkedEntries<T>(
     .map((entry) => entry as T);
 }
 
+function resolveLinkedAssets(
+  references: ContentfulReference[] | undefined,
+  assets: ContentfulAsset[] = [],
+): ContentfulAsset[] {
+  const lookup = new Map(assets.map((asset) => [asset.sys?.id, asset]));
+  return (references ?? []).flatMap((reference) => {
+    const asset = lookup.get(reference.sys.id);
+    const normalized = normalizeAsset(asset);
+    return normalized ? [normalized] : [];
+  });
+}
+
 function mapLandingPageItem(item: ContentfulLandingPageItem, includes: ContentfulCollection<ContentfulLandingPageItem>['includes']): LandingPageEntry {
   const entryMap = includes?.Entry ?? [];
 
@@ -245,9 +259,14 @@ export function mapEventItem(
     heroMedia,
     registrationUrl: item.fields.registrationUrl,
     pairingUrl: item.fields.pairingUrl,
+    documents: resolveLinkedAssets(item.fields.documents, includes?.Asset),
     divisions: resolveEventDivisions(item.fields.divisions, includes?.Entry).map((division) => ({
       ...division,
       status: division.status as EventEntry['status'] | undefined,
+    })),
+    relatedEvents: resolveRelatedEvents(item.fields.relatedEvents, includes?.Entry).map((relatedEvent) => ({
+      ...relatedEvent,
+      status: relatedEvent.status as EventEntry['status'] | undefined,
     })),
     format: item.fields.format,
     schedule: item.fields.schedule,
@@ -352,7 +371,7 @@ export async function getPublishedEventBySlug(slug: string): Promise<EventEntry 
   return mapEventItem(item, response?.includes);
 }
 
-export async function getPublishedEvents(limit = 6): Promise<EventEntry[]> {
+export async function getPublishedEvents(limit = 1000): Promise<EventEntry[]> {
   const response = await contentfulFetch<ContentfulCollection<ContentfulEventItem>>('entries', {
     content_type: 'event',
     include: '10',

@@ -54,12 +54,13 @@ export async function contentfulFetch<T>(
   });
 
   try {
+    const disableDataCache = config.preview || process.env.NODE_ENV === 'development';
     const response = await fetch(url.toString(), {
       headers: {
         Authorization: `Bearer ${config.accessToken}`,
       },
-      cache: config.preview ? 'no-store' : undefined,
-      next: config.preview ? undefined : { revalidate: 3600, tags },
+      cache: disableDataCache ? 'no-store' : undefined,
+      next: disableDataCache ? undefined : { revalidate: 3600, tags },
     });
 
     if (!response.ok) {

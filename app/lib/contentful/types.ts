@@ -10,6 +10,8 @@ export type ContentfulAsset = {
   fields?: {
     file?: {
       url?: string;
+      contentType?: string;
+      details?: { size?: number };
     };
     title?: string;
     description?: string;
@@ -116,7 +118,9 @@ export type EventEntry = {
   heroMedia?: ContentfulAsset;
   registrationUrl?: string;
   pairingUrl?: string;
+  documents?: ContentfulAsset[];
   divisions?: EventEntry[];
+  relatedEvents?: EventEntry[];
   format?: string;
   schedule?: string;
   scheduleItems?: Array<{ time: string; title: string; detail?: string }>;

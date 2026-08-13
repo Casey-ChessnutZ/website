@@ -99,8 +99,35 @@
       "localized": false
     },
     {
+      "id": "documents",
+      "name": "Documents & Media",
+      "type": "Array",
+      "items": {
+        "type": "Link",
+        "linkType": "Asset"
+      },
+      "required": false,
+      "localized": false
+    },
+    {
       "id": "divisions",
       "name": "Divisions",
+      "type": "Array",
+      "items": {
+        "type": "Link",
+        "linkType": "Entry",
+        "validations": [
+          {
+            "linkContentType": ["event"]
+          }
+        ]
+      },
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "relatedEvents",
+      "name": "Related Events",
       "type": "Array",
       "items": {
         "type": "Link",

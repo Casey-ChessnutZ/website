@@ -125,6 +125,9 @@
 - [X] T052 Redesign event detail pages as Contentful-driven tournament dossiers with venue maps, structured schedules, and linked person profiles for officials.
 - [X] T053 Add a Contentful-driven, responsive editorial Our Team directory at `/team`, with canonical `/team/[slug]` profiles and primary navigation access.
 - [X] T054 Migrate Event venue coordinates to Contentful’s native `venueLocation` field, update map rendering, and omit legacy latitude/longitude fields from delivery responses.
+- [X] T055 Add ordered Event-to-Event related-event references, render linked event history on dossiers, and seed a Melbourne Open previous-edition example.
+- [X] T056 Replace the six-event calendar cap with a Melbourne-year calendar and URL-addressable previous-year archive selector.
+- [X] T057 Add optional Event Documents & Media asset uploads with an accessible, responsive event-page download shelf.
 
 ---
 

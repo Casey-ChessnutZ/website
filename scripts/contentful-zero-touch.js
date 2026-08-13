@@ -344,6 +344,14 @@ async function run() {
     about: { 'en-US': richText('Daniel supports player check-in, pairing operations, and on-the-floor tournament assistance.') },
   });
 
+  const melbourneOpen2025 = await upsertEntryBySlug(client, spaceId, environmentId, 'event', 'melbourne-open-2025', {
+    title: { 'en-US': 'Melbourne Open 2025' }, slug: { 'en-US': 'melbourne-open-2025' },
+    summary: { 'en-US': 'The previous edition of our five-round Melbourne Open weekend.' },
+    description: { 'en-US': richText('A competitive weekend of classical chess that set the stage for the next Melbourne Open.') },
+    eventDate: { 'en-US': '2025-11-15T10:00:00.000Z' }, locationName: { 'en-US': 'The Wheeler Centre' },
+    status: { 'en-US': 'archived' }, format: { 'en-US': 'Five-round Swiss' }, organizer: { 'en-US': 'Casey ChessnutZ' }, tags: { 'en-US': ['Classical', 'Open', 'Melbourne', 'Archive'] },
+  });
+
   const melbourneOpen = await upsertEntryBySlug(client, spaceId, environmentId, 'event', 'melbourne-open-2026', {
     title: { 'en-US': 'Melbourne Open 2026' }, slug: { 'en-US': 'melbourne-open-2026' },
     summary: { 'en-US': 'A five-round weekend tournament for ambitious club players and seasoned competitors.' },
@@ -355,6 +363,7 @@ async function run() {
     venueAddress: { 'en-US': '176 Little Lonsdale Street, Melbourne VIC 3000' }, venueLocation: { 'en-US': { lat: -37.8108, lon: 144.9655 } }, venueNotes: { 'en-US': 'Registration opens at the main foyer from 9:00am. The venue is a short walk from Melbourne Central station.' },
     scheduleTimeline: { 'en-US': { items: [{ time: 'Saturday · 9:00am', title: 'Registration', detail: 'Collect your player details at the main foyer.' }, { time: 'Saturday · 10:00am', title: 'Round 1', detail: 'Boards close five minutes before the round.' }, { time: 'Saturday · 1:30pm', title: 'Round 2' }, { time: 'Saturday · 4:30pm', title: 'Round 3' }, { time: 'Sunday · 10:00am', title: 'Round 4' }, { time: 'Sunday · 2:00pm', title: 'Round 5 & presentations', detail: 'Prize presentation follows the final round.' }] } },
     officials: { 'en-US': [{ sys: { type: 'Link', linkType: 'Entry', id: alexMorgan.sys.id } }, { sys: { type: 'Link', linkType: 'Entry', id: priyaShah.sys.id } }, { sys: { type: 'Link', linkType: 'Entry', id: danielWong.sys.id } }] },
+    relatedEvents: { 'en-US': [{ sys: { type: 'Link', linkType: 'Entry', id: melbourneOpen2025.sys.id } }] },
   });
 
   const springRapid = await upsertEntryBySlug(client, spaceId, environmentId, 'event', 'spring-rapid-2026', {

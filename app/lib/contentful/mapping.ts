@@ -47,6 +47,21 @@ export function normalizeLocation(value: unknown): { lat: number; lon: number } 
     : undefined;
 }
 
+export function getAssetTypeLabel(contentType?: string): string {
+  if (contentType === 'application/pdf') return 'PDF';
+  if (contentType?.startsWith('video/')) return 'Video';
+  if (contentType?.startsWith('image/')) return 'Image';
+  if (contentType?.startsWith('audio/')) return 'Audio';
+  return 'File';
+}
+
+export function formatAssetSize(size?: number): string | undefined {
+  if (typeof size !== 'number' || !Number.isFinite(size) || size < 0) return undefined;
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 export function toRichTextDocument(value: unknown) {
   if (!value || typeof value !== 'object') return undefined;
   const document = value as { nodeType?: unknown; content?: unknown };
@@ -81,3 +96,5 @@ export function resolveEventDivisions(
     }))
     .filter((entry) => Boolean(entry.slug));
 }
+
+export const resolveRelatedEvents = resolveEventDivisions;
