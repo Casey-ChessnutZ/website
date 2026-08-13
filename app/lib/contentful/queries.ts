@@ -1,4 +1,5 @@
 import { contentfulFetch } from './client';
+import { contentfulTags } from './cache-revalidation';
 import { mergeSectionBlockFields, resolveEventDivisions, richTextToPlainText, toRichTextDocument } from './mapping';
 import type { Document } from '@contentful/rich-text-types';
 import type {
@@ -273,7 +274,7 @@ export async function getPublishedLandingPage(): Promise<LandingPageEntry | null
     order: '-sys.updatedAt',
     include: '10',
     limit: '1',
-  });
+  }, [...contentfulTags('landingPage'), ...contentfulTags('sectionBlock'), ...contentfulTags('event')]);
 
   const item = response?.items?.[0];
 
@@ -290,7 +291,7 @@ export async function getPublishedEventBySlug(slug: string): Promise<EventEntry 
     'fields.slug': slug,
     include: '10',
     limit: '1',
-  });
+  }, contentfulTags('event', slug));
 
   const item = response?.items?.[0];
 
@@ -307,7 +308,7 @@ export async function getPublishedEvents(limit = 6): Promise<EventEntry[]> {
     include: '10',
     order: 'fields.eventDate',
     limit: String(limit),
-  });
+  }, contentfulTags('event'));
 
   return (response?.items ?? []).map((item) => mapEventItem(item, response?.includes));
 }
@@ -318,7 +319,7 @@ export async function getPublishedNews(limit = 12): Promise<NewsEntry[]> {
     include: '2',
     order: '-fields.publishedDate',
     limit: String(limit),
-  });
+  }, contentfulTags('news'));
 
   return (response?.items ?? []).map(mapNewsItem);
 }
@@ -329,7 +330,7 @@ export async function getPublishedNewsBySlug(slug: string): Promise<NewsEntry | 
     'fields.slug': slug,
     include: '2',
     limit: '1',
-  });
+  }, contentfulTags('news', slug));
 
   const item = response?.items?.[0];
   return item ? mapNewsItem(item) : null;
@@ -340,7 +341,7 @@ export async function getSiteSettings(): Promise<SiteSettingsEntry> {
     content_type: 'siteSettings',
     limit: '1',
     include: '10',
-  });
+  }, contentfulTags('siteSettings'));
 
   const item = response?.items?.[0];
 

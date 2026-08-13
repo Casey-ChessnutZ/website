@@ -119,6 +119,8 @@
 - [X] T046 Add Event divisions and pairing URL support, seed the published 2026 Koshnitsky Cup major event with Major, Minor, and Rookies division examples, and validate Delivery API resolution.
 - [X] T047 Add Contentful-driven News list/detail pages, a locally saved contact-form draft ready for email delivery, and an editorial footer linking News and Contact.
 - [X] T048 Render News article content with Contentful's official React Rich Text renderer so editor formatting is preserved.
+- [X] T049 Add News to the responsive primary navigation in both the safe fallback and seeded Site Settings configuration.
+- [X] T050 Add Contentful ISR cache tags and a signed, type- and slug-aware webhook endpoint for on-demand data and route revalidation.
 
 ---
 

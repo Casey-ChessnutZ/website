@@ -35,6 +35,7 @@ function getContentfulConfig(): ContentfulClientConfig | null {
 export async function contentfulFetch<T>(
   path: string,
   params: Record<string, string | undefined> = {},
+  tags: string[] = [],
 ): Promise<T | null> {
   const config = getContentfulConfig();
 
@@ -58,7 +59,7 @@ export async function contentfulFetch<T>(
         Authorization: `Bearer ${config.accessToken}`,
       },
       cache: config.preview ? 'no-store' : undefined,
-      next: config.preview ? undefined : { revalidate: 60 },
+      next: config.preview ? undefined : { revalidate: 3600, tags },
     });
 
     if (!response.ok) {

@@ -470,6 +470,7 @@ async function run() {
     navigationConfig: {
       'en-US': { items: [
         { label: 'Tournaments', href: '/events', style: 'text', enabled: true },
+        { label: 'News', href: '/news', style: 'text', enabled: true },
         { label: 'About', href: '/#about', style: 'text', enabled: true },
         { label: 'Find an event', href: '/events', style: 'primary', enabled: true },
       ] },

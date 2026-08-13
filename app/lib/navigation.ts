@@ -9,6 +9,7 @@ export type PrimaryNavigationItem = Required<Pick<NavigationItem, 'href' | 'labe
 
 const fallbackNavigation: PrimaryNavigationItem[] = [
   { href: '/events', label: 'Tournaments', style: 'text' },
+  { href: '/news', label: 'News', style: 'text' },
   { href: '/#about', label: 'About', style: 'text' },
   { href: '/events', label: 'Find an event', style: 'primary' },
 ];
