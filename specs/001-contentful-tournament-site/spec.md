@@ -6,7 +6,7 @@
 
 **Status**: Draft
 
-**Input**: User description: "Create a content-driven chess tournament listing website using React, Next.js, Contentful, Vercel, and Contentful MCP so an LLM can work directly with content and content types. The site needs a dynamic landing page, a dedicated event page content type, reusable components, and best-practice Contentful modeling."
+**Input**: User description: "Create a content-driven ChessNutZ website using React, Next.js, Contentful, Vercel, and Contentful MCP so an LLM can work directly with content and content types. The site needs a dynamic landing page, a dedicated event page content type, reusable components, and best-practice Contentful modeling."
 
 ## User Scenarios & Testing *(mandatory)*
 

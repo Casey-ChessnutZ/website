@@ -31,7 +31,7 @@ export default function RenderBlock({ block }: { block: LandingPageBlock }) {
       return <CardBlock block={block} />;
     default:
       return (
-        <section className="content-section unsupported-block">
+        <section className="mx-auto mt-28 max-w-304 px-5 text-muted">
           <p>This content section is not available yet.</p>
         </section>
       );

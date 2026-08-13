@@ -5,7 +5,7 @@ import './globals.css';
 import { getPageMetadata } from '@/app/lib/seo/metadata';
 
 export async function generateMetadata(): Promise<Metadata> {
-  return getPageMetadata('Chess Tournament Listing', 'Contentful-driven chess tournament website', '/');
+  return getPageMetadata('ChessNutZ', 'Contentful-driven chess tournament website', '/');
 }
 
 export default function RootLayout({

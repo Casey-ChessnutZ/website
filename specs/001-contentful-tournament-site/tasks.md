@@ -103,8 +103,22 @@
 
 - [X] T036 [P] Tighten shared UI polish, spacing, and responsive behavior across `app/components/`
 - [X] T037 [P] Add final documentation updates for the homepage and event page content model in `content-model/documentation/`
-- [ ] T038 Verify the quickstart scenarios in `specs/001-contentful-tournament-site/quickstart.md` — requires a configured Contentful space with published entries and is not runnable safely from the available local configuration.
+- [X] T038 Verify the quickstart scenarios in `specs/001-contentful-tournament-site/quickstart.md` — validated 2026-08-13 against the configured Contentful space: Event, Landing Page, Section Block, and Site Settings types exist; the published `home` entry resolves its supporting sections and featured events; and the published Melbourne Open example exposes required and optional fields. Workspace MCP configuration is present for model inspection.
 - [X] T039 Review route and content fallbacks for unsupported or unpublished Contentful entries in `app/(site)/`
+
+---
+
+## Phase 7: Content examples & isolated verification
+
+- [X] T040 Add structured section-content mapping and rich-text event-description handling in `app/lib/contentful/mapping.ts` and `app/lib/contentful/queries.ts`.
+- [X] T041 Seed the published `home` Landing Page with editorial, countdown, card, timeline, and CTA blocks plus three featured events in `scripts/contentful-zero-touch.js`.
+- [X] T042 Seed and validate the published `/events/melbourne-open-2026` example with event overview, schedule, location, and registration content.
+- [X] T043 Keep the redesigned site route tree unambiguous and run offline verification in `.next-isolated/` without modifying the live development build output.
+- [X] T044 Migrate the presentational layer to Tailwind CSS v4 while preserving the Contentful site behavior, accessibility, and isolated verification workflow.
+- [X] T045 Format all visible event dates with a consistent, friendly Australia/Melbourne locale label instead of raw Contentful UTC timestamps.
+- [X] T046 Add Event divisions and pairing URL support, seed the published 2026 Koshnitsky Cup major event with Major, Minor, and Rookies division examples, and validate Delivery API resolution.
+- [X] T047 Add Contentful-driven News list/detail pages, a locally saved contact-form draft ready for email delivery, and an editorial footer linking News and Contact.
+- [X] T048 Render News article content with Contentful's official React Rich Text renderer so editor formatting is preserved.
 
 ---
 

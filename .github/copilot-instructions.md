@@ -14,6 +14,8 @@
   management API.
 - Use `npm run verify:isolated` for a complete offline test, lint, and build check.
   Use `npm run build:isolated` when only a CMS-isolated production build is needed.
+- The isolated commands write only to `.next-isolated/` through `NEXT_DIST_DIR`;
+  preserve that separation from the `.next/` directory used by live development.
 - Treat `npm run contentful:sync` as an explicit content-management operation. Do
   not run it as part of tests, builds, formatting, or development startup.
 - Add tests for any offline-mode behavior and keep normal Delivery/Preview behavior

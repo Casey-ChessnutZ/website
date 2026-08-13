@@ -1,4 +1,6 @@
 import { contentfulFetch } from './client';
+import { mergeSectionBlockFields, resolveEventDivisions, richTextToPlainText, toRichTextDocument } from './mapping';
+import type { Document } from '@contentful/rich-text-types';
 import type {
   ContentfulAsset,
   ContentfulEntry,
@@ -8,6 +10,7 @@ import type {
   LandingPageBlockType,
   LandingPageEntry,
   SiteSettingsEntry,
+  NewsEntry,
 } from './types';
 
 type ContentfulCollection<T> = {
@@ -36,19 +39,33 @@ type ContentfulEventItem = {
     title?: string;
     slug?: string;
     summary?: string;
-    description?: string;
+    description?: unknown;
     eventDate?: string;
     locationName?: string;
     locationDetails?: string;
     status?: 'draft' | 'scheduled' | 'published' | 'archived';
     heroMedia?: ContentfulReference | ContentfulAsset;
     registrationUrl?: string;
+    pairingUrl?: string;
+    divisions?: ContentfulReference[];
     format?: string;
     schedule?: string;
     prizeInformation?: string;
     eligibility?: string;
     organizer?: string;
     tags?: string[];
+  };
+};
+
+type ContentfulNewsItem = {
+  sys: { id: string };
+  fields: {
+    title?: string;
+    slug?: string;
+    summary?: string;
+    publishedDate?: string;
+    tags?: string[];
+    content?: unknown;
   };
 };
 
@@ -144,7 +161,7 @@ function mapLandingPageItem(item: ContentfulLandingPageItem, includes: Contentfu
           (typeof match.fields.blockType === 'string'
             ? (match.fields.blockType as LandingPageBlockType)
             : undefined) ?? 'cardBlock',
-        fields: match.fields ?? {},
+        fields: mergeSectionBlockFields(match.fields ?? {}),
       } satisfies LandingPageBlock;
     })
     .filter((section): section is LandingPageBlock => section !== null);
@@ -157,7 +174,7 @@ function mapLandingPageItem(item: ContentfulLandingPageItem, includes: Contentfu
     title: typeof entry?.title === 'string' ? entry.title : 'Event',
     slug: typeof entry?.slug === 'string' ? entry.slug : '',
     summary: typeof entry?.summary === 'string' ? entry.summary : undefined,
-    description: typeof entry?.description === 'string' ? entry.description : undefined,
+    description: richTextToPlainText(entry?.description),
     eventDate: typeof entry?.eventDate === 'string' ? entry.eventDate : undefined,
     locationName: typeof entry?.locationName === 'string' ? entry.locationName : undefined,
     locationDetails: typeof entry?.locationDetails === 'string' ? entry.locationDetails : undefined,
@@ -183,7 +200,10 @@ function mapLandingPageItem(item: ContentfulLandingPageItem, includes: Contentfu
   };
 }
 
-function mapEventItem(item: ContentfulEventItem): EventEntry {
+export function mapEventItem(
+  item: ContentfulEventItem,
+  includes?: ContentfulCollection<ContentfulEventItem>['includes'],
+): EventEntry {
   const heroMedia = normalizeAsset(item.fields.heroMedia);
 
   return {
@@ -191,19 +211,36 @@ function mapEventItem(item: ContentfulEventItem): EventEntry {
     title: item.fields.title ?? 'Event',
     slug: item.fields.slug ?? '',
     summary: item.fields.summary,
-    description: item.fields.description,
+    description: richTextToPlainText(item.fields.description),
     eventDate: item.fields.eventDate,
     locationName: item.fields.locationName,
     locationDetails: item.fields.locationDetails,
     status: item.fields.status,
     heroMedia,
     registrationUrl: item.fields.registrationUrl,
+    pairingUrl: item.fields.pairingUrl,
+    divisions: resolveEventDivisions(item.fields.divisions, includes?.Entry).map((division) => ({
+      ...division,
+      status: division.status as EventEntry['status'] | undefined,
+    })),
     format: item.fields.format,
     schedule: item.fields.schedule,
     prizeInformation: item.fields.prizeInformation,
     eligibility: item.fields.eligibility,
     organizer: item.fields.organizer,
     tags: item.fields.tags,
+  };
+}
+
+function mapNewsItem(item: ContentfulNewsItem): NewsEntry {
+  return {
+    sys: item.sys,
+    title: item.fields.title ?? 'News update',
+    slug: item.fields.slug ?? '',
+    summary: item.fields.summary,
+    publishedDate: item.fields.publishedDate,
+    tags: item.fields.tags,
+    content: toRichTextDocument(item.fields.content) as Document | undefined,
   };
 }
 
@@ -217,9 +254,9 @@ function mapSiteSettingsItem(item: ContentfulSiteSettingsItem): SiteSettingsEntr
 
   return {
     sys: item.sys,
-    siteName: item.fields.siteName ?? 'Chess Tournament Listing',
+    siteName: item.fields.siteName ?? 'ChessNutZ',
     logo: normalizeAsset(item.fields.logo),
-    defaultSeoTitle: item.fields.defaultSeoTitle ?? item.fields.siteName ?? 'Chess Tournament Listing',
+    defaultSeoTitle: item.fields.defaultSeoTitle ?? item.fields.siteName ?? 'ChessNutZ',
     defaultSeoDescription:
       item.fields.defaultSeoDescription ??
       'Discover upcoming chess tournaments and event details from the content-driven tournament site.',
@@ -261,7 +298,7 @@ export async function getPublishedEventBySlug(slug: string): Promise<EventEntry 
     return null;
   }
 
-  return mapEventItem(item);
+  return mapEventItem(item, response?.includes);
 }
 
 export async function getPublishedEvents(limit = 6): Promise<EventEntry[]> {
@@ -272,7 +309,30 @@ export async function getPublishedEvents(limit = 6): Promise<EventEntry[]> {
     limit: String(limit),
   });
 
-  return (response?.items ?? []).map(mapEventItem);
+  return (response?.items ?? []).map((item) => mapEventItem(item, response?.includes));
+}
+
+export async function getPublishedNews(limit = 12): Promise<NewsEntry[]> {
+  const response = await contentfulFetch<ContentfulCollection<ContentfulNewsItem>>('entries', {
+    content_type: 'news',
+    include: '2',
+    order: '-fields.publishedDate',
+    limit: String(limit),
+  });
+
+  return (response?.items ?? []).map(mapNewsItem);
+}
+
+export async function getPublishedNewsBySlug(slug: string): Promise<NewsEntry | null> {
+  const response = await contentfulFetch<ContentfulCollection<ContentfulNewsItem>>('entries', {
+    content_type: 'news',
+    'fields.slug': slug,
+    include: '2',
+    limit: '1',
+  });
+
+  const item = response?.items?.[0];
+  return item ? mapNewsItem(item) : null;
 }
 
 export async function getSiteSettings(): Promise<SiteSettingsEntry> {
@@ -287,8 +347,8 @@ export async function getSiteSettings(): Promise<SiteSettingsEntry> {
   if (!item) {
     return {
       sys: { id: 'default-site-settings' },
-      siteName: 'Chess Tournament Listing',
-      defaultSeoTitle: 'Chess Tournament Listing',
+      siteName: 'ChessNutZ',
+      defaultSeoTitle: 'ChessNutZ',
       defaultSeoDescription: 'Discover upcoming chess tournaments and event details from the content-driven tournament site.',
     };
   }

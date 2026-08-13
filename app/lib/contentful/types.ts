@@ -1,3 +1,5 @@
+import type { Document } from '@contentful/rich-text-types';
+
 export type ContentfulAsset = {
   sys?: {
     id?: string;
@@ -110,10 +112,22 @@ export type EventEntry = {
   status?: 'draft' | 'scheduled' | 'published' | 'archived';
   heroMedia?: ContentfulAsset;
   registrationUrl?: string;
+  pairingUrl?: string;
+  divisions?: EventEntry[];
   format?: string;
   schedule?: string;
   prizeInformation?: string;
   eligibility?: string;
   organizer?: string;
   tags?: string[];
+};
+
+export type NewsEntry = {
+  sys: { id: string };
+  title: string;
+  slug: string;
+  summary?: string;
+  publishedDate?: string;
+  tags?: string[];
+  content?: Document;
 };

@@ -6,9 +6,9 @@
 .env.*
 node_modules/
 .next/
+.next-isolated/
 out/
 dist/
 build/
 coverage/
 *.log
-

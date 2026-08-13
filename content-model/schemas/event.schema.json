@@ -87,6 +87,29 @@
       "localized": false
     },
     {
+      "id": "pairingUrl",
+      "name": "Pairing URL",
+      "type": "Symbol",
+      "required": false,
+      "localized": false
+    },
+    {
+      "id": "divisions",
+      "name": "Divisions",
+      "type": "Array",
+      "items": {
+        "type": "Link",
+        "linkType": "Entry",
+        "validations": [
+          {
+            "linkContentType": ["event"]
+          }
+        ]
+      },
+      "required": false,
+      "localized": false
+    },
+    {
       "id": "format",
       "name": "Format",
       "type": "Symbol",

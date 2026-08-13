@@ -1,0 +1,14 @@
+{
+  "sys": { "id": "news", "displayField": "title" },
+  "name": "News",
+  "description": "Organiser news, announcements, and tournament updates",
+  "displayField": "title",
+  "fields": [
+    { "id": "title", "name": "Title", "type": "Symbol", "required": true, "localized": false },
+    { "id": "slug", "name": "Slug", "type": "Symbol", "required": true, "localized": false },
+    { "id": "summary", "name": "Summary", "type": "Text", "required": false, "localized": false },
+    { "id": "publishedDate", "name": "Published Date", "type": "Date", "required": true, "localized": false },
+    { "id": "tags", "name": "Tags", "type": "Array", "items": { "type": "Symbol" }, "required": false, "localized": false },
+    { "id": "content", "name": "Content", "type": "RichText", "required": true, "localized": false }
+  ]
+}

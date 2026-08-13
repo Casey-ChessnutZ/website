@@ -10,8 +10,8 @@ export async function getPageMetadata(
   const siteSettings = await getSiteSettings();
 
   const pageTitle = title
-    ? `${title} | ${siteSettings.siteName ?? 'Chess Tournament Listing'}`
-    : siteSettings.defaultSeoTitle ?? siteSettings.siteName ?? 'Chess Tournament Listing';
+    ? `${title} | ${siteSettings.siteName ?? 'ChessNutZ'}`
+    : siteSettings.defaultSeoTitle ?? siteSettings.siteName ?? 'ChessNutZ';
 
   const pageDescription = description ?? siteSettings.defaultSeoDescription;
 
