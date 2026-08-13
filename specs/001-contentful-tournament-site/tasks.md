@@ -128,6 +128,11 @@
 - [X] T055 Add ordered Event-to-Event related-event references, render linked event history on dossiers, and seed a Melbourne Open previous-edition example.
 - [X] T056 Replace the six-event calendar cap with a Melbourne-year calendar and URL-addressable previous-year archive selector.
 - [X] T057 Add optional Event Documents & Media asset uploads with an accessible, responsive event-page download shelf.
+- [X] T058 Configure Contentful’s built-in slug editor for every slug-bearing content type, auto-generating from title or person name.
+- [X] T059 Replace the generic JSON-driven `sectionBlock` schema with ten focused homepage section schemas and remove obsolete Event legacy fields.
+- [X] T060 Update homepage mapping, cache invalidation, and rendering to dispatch sections by Contentful content type.
+- [X] T061 Synchronise the destructive Contentful migration, publish the ten-section home example, and verify the live model.
+- [X] T062 Redesign Featured Events as a responsive editorial lead card and ordered tournament index.
 
 ---
 

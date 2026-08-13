@@ -22,37 +22,13 @@
       "localized": false
     },
     {
-      "id": "heroHeadline",
-      "name": "Hero Headline",
-      "type": "Symbol",
-      "required": false,
-      "localized": false
-    },
-    {
-      "id": "heroDescription",
-      "name": "Hero Description",
-      "type": "Text",
-      "required": false,
-      "localized": false
-    },
-    {
-      "id": "featuredEvents",
-      "name": "Featured Events",
-      "type": "Array",
-      "items": {
-        "type": "Link",
-        "linkType": "Entry"
-      },
-      "required": false,
-      "localized": false
-    },
-    {
       "id": "sections",
       "name": "Sections",
       "type": "Array",
       "items": {
         "type": "Link",
-        "linkType": "Entry"
+        "linkType": "Entry",
+        "validations": [{ "linkContentType": ["homeHero", "richTextSection", "imageTextSection", "featuredEventsSection", "eventCountdownSection", "featureCardsSection", "imageGallerySection", "timelineSection", "quoteSection", "ctaBannerSection"] }]
       },
       "required": false,
       "localized": false

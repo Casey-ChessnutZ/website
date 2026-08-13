@@ -68,12 +68,23 @@ async function upsertContentType(client, schemaFile, spaceId, environmentId) {
       throw new Error(`Missing version for existing content type: ${contentTypeId}`);
     }
 
+    const requestedIds = new Set(payload.fields.map((field) => field.id));
+    const deprecatedFields = (existing.fields || []).filter((field) => !requestedIds.has(field.id) && !field.omitted);
+    if (deprecatedFields.length) {
+      await client.contentType.update(
+        { contentTypeId, spaceId, environmentId },
+        { ...existing, fields: existing.fields.map((field) => deprecatedFields.some((deprecated) => deprecated.id === field.id) ? { ...field, omitted: true } : field), sys: { version: updateVersion } },
+      );
+      const omitted = await client.contentType.get({ contentTypeId, spaceId, environmentId });
+      await client.contentType.publish({ contentTypeId, spaceId, environmentId }, { ...omitted, sys: { ...omitted.sys, version: omitted.sys.version } });
+    }
+    const current = await client.contentType.get({ contentTypeId, spaceId, environmentId });
     await client.contentType.update(
       { contentTypeId, spaceId, environmentId },
       {
         ...payload,
         sys: {
-          version: updateVersion,
+          version: current.sys.version,
         },
       },
     );
@@ -116,6 +127,54 @@ async function upsertContentType(client, schemaFile, spaceId, environmentId) {
     },
   );
   console.log(`Created and published content type: ${contentTypeId}`);
+}
+
+async function deleteContentTypeAndEntries(client, contentTypeId, spaceId, environmentId) {
+  const entries = await client.entry.getMany({ spaceId, environmentId, query: { content_type: contentTypeId, limit: 1000 } }).catch(() => ({ items: [] }));
+  for (const entry of entries.items || []) {
+    const entryId = entry.sys.id;
+    if (entry.sys.publishedVersion) {
+      await client.entry.unpublish({ entryId, spaceId, environmentId }, { ...entry, sys: { ...entry.sys, version: entry.sys.version } });
+    }
+    const current = await client.entry.get({ entryId, spaceId, environmentId });
+    await client.entry.delete({ entryId, spaceId, environmentId }, { ...current, sys: { ...current.sys, version: current.sys.version } });
+  }
+  const contentType = await client.contentType.get({ contentTypeId, spaceId, environmentId }).catch(() => null);
+  if (!contentType) return;
+  if (contentType.sys.publishedVersion) await client.contentType.unpublish({ contentTypeId, spaceId, environmentId }, { ...contentType, sys: { ...contentType.sys, version: contentType.sys.version } });
+  const current = await client.contentType.get({ contentTypeId, spaceId, environmentId });
+  await client.contentType.delete({ contentTypeId, spaceId, environmentId }, { ...current, sys: { ...current.sys, version: current.sys.version } });
+  console.log(`Deleted legacy content type: ${contentTypeId}`);
+}
+
+async function configureSlugEditor(client, schemaFile, spaceId, environmentId) {
+  const schemaPath = path.join(process.cwd(), 'content-model', 'schemas', schemaFile);
+  const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
+  const slugField = (schema.fields || []).find((field) => field.id === 'slug');
+  const trackingFieldId = schema.displayField;
+
+  if (!slugField || !trackingFieldId) return;
+
+  const contentTypeId = schema.sys.id;
+  const editorInterface = await client.editorInterface.get({ contentTypeId, spaceId, environmentId });
+  const controls = (editorInterface.controls || []).filter((control) => control.fieldId !== 'slug');
+  const previousSlugControl = (editorInterface.controls || []).find((control) => control.fieldId === 'slug');
+  controls.push({
+    fieldId: 'slug',
+    widgetNamespace: 'builtin',
+    widgetId: 'slugEditor',
+    settings: { ...(previousSlugControl?.settings || {}), trackingFieldId },
+  });
+
+  await client.editorInterface.update(
+    { contentTypeId, spaceId, environmentId },
+    {
+      ...editorInterface,
+      controls,
+      sys: { version: editorInterface.sys.version },
+    },
+  );
+  console.log(`Configured slug editor: ${contentTypeId} ← ${trackingFieldId}`);
 }
 
 async function upsertEntryBySlug(client, spaceId, environmentId, contentType, slug, fields) {
@@ -272,15 +331,24 @@ async function run() {
     { type: 'plain', defaults: { spaceId, environmentId } },
   );
 
-  // 1) Sync content model
+  // 1) Sync content model. A seed-only retry avoids repeating model writes after API throttling.
+  if (!process.env.CONTENTFUL_SKIP_MODEL_SYNC) {
   await upsertContentType(client, 'person.schema.json', spaceId, environmentId);
   await upsertContentType(client, 'event.schema.json', spaceId, environmentId);
   await upsertContentType(client, 'news.schema.json', spaceId, environmentId);
-  await upsertContentType(client, 'section-block.schema.json', spaceId, environmentId);
+  for (const schemaFile of ['home-hero.schema.json', 'rich-text-section.schema.json', 'image-text-section.schema.json', 'featured-events-section.schema.json', 'event-countdown-section.schema.json', 'feature-card.schema.json', 'feature-cards-section.schema.json', 'image-gallery-section.schema.json', 'timeline-item.schema.json', 'timeline-section.schema.json', 'quote-section.schema.json', 'cta-banner-section.schema.json']) {
+    await upsertContentType(client, schemaFile, spaceId, environmentId);
+  }
   await upsertContentType(client, 'landing-page.schema.json', spaceId, environmentId);
   await upsertContentType(client, 'site-settings.schema.json', spaceId, environmentId);
+  await configureSlugEditor(client, 'person.schema.json', spaceId, environmentId);
+  await configureSlugEditor(client, 'event.schema.json', spaceId, environmentId);
+  await configureSlugEditor(client, 'news.schema.json', spaceId, environmentId);
+  await configureSlugEditor(client, 'landing-page.schema.json', spaceId, environmentId);
+  }
 
-  // 2) Seed section blocks
+  // Previous generic sectionBlock seed retained only as source-history while the clean migration runs.
+  if (false) {
   const heroBlock = await upsertEntryBySlug(client, spaceId, environmentId, 'sectionBlock', 'home-hero', {
     title: { 'en-US': 'Homepage Hero Block' },
     slug: { 'en-US': 'home-hero' },
@@ -330,7 +398,17 @@ async function run() {
     ctaText: { 'en-US': 'Find an event' }, ctaUrl: { 'en-US': '/events' },
   });
 
-  // 3) Seed people and event examples
+  }
+
+  // 3) Seed people and event examples. Homepage-only retries reuse deterministic IDs.
+  let melbourneOpen;
+  let springRapid;
+  let koshnitskyCup;
+  if (process.env.CONTENTFUL_SKIP_CORE_SEED) {
+    melbourneOpen = { sys: { id: 'event--melbourne-open-2026' } };
+    springRapid = { sys: { id: 'event--spring-rapid-2026' } };
+    koshnitskyCup = { sys: { id: 'event--2026-koshnitsky-cup' } };
+  } else {
   const alexMorgan = await upsertEntryBySlug(client, spaceId, environmentId, 'person', 'alex-morgan', {
     name: { 'en-US': 'Alex Morgan' }, slug: { 'en-US': 'alex-morgan' }, title: { 'en-US': 'Tournament Organiser' }, federation: { 'en-US': 'Chess Victoria' }, location: { 'en-US': 'Melbourne, Australia' },
     about: { 'en-US': richText('Alex coordinates Casey ChessnutZ tournaments with a focus on clear player communication and a welcoming tournament experience.') },
@@ -352,7 +430,7 @@ async function run() {
     status: { 'en-US': 'archived' }, format: { 'en-US': 'Five-round Swiss' }, organizer: { 'en-US': 'Casey ChessnutZ' }, tags: { 'en-US': ['Classical', 'Open', 'Melbourne', 'Archive'] },
   });
 
-  const melbourneOpen = await upsertEntryBySlug(client, spaceId, environmentId, 'event', 'melbourne-open-2026', {
+  melbourneOpen = await upsertEntryBySlug(client, spaceId, environmentId, 'event', 'melbourne-open-2026', {
     title: { 'en-US': 'Melbourne Open 2026' }, slug: { 'en-US': 'melbourne-open-2026' },
     summary: { 'en-US': 'A five-round weekend tournament for ambitious club players and seasoned competitors.' },
     description: { 'en-US': richText('The Melbourne Open brings together players from across Victoria for a considered weekend of classical chess. Pairings are published before every round, with a quiet analysis area available throughout the event.') },
@@ -366,7 +444,7 @@ async function run() {
     relatedEvents: { 'en-US': [{ sys: { type: 'Link', linkType: 'Entry', id: melbourneOpen2025.sys.id } }] },
   });
 
-  const springRapid = await upsertEntryBySlug(client, spaceId, environmentId, 'event', 'spring-rapid-2026', {
+  springRapid = await upsertEntryBySlug(client, spaceId, environmentId, 'event', 'spring-rapid-2026', {
     title: { 'en-US': 'Spring Rapid 2026' }, slug: { 'en-US': 'spring-rapid-2026' }, summary: { 'en-US': 'Six rapid rounds, one bright Saturday, and a friendly competitive field.' },
     description: { 'en-US': richText('A welcoming rapid event for players looking for quality games in a single afternoon.') }, eventDate: { 'en-US': '2026-09-19T11:00:00.000Z' },
     locationName: { 'en-US': 'Fitzroy Town Hall' }, status: { 'en-US': 'published' }, format: { 'en-US': '15+10 Rapid Swiss' }, organizer: { 'en-US': 'Casey ChessnutZ' }, tags: { 'en-US': ['Rapid', 'Melbourne'] },
@@ -407,7 +485,7 @@ async function run() {
     schedule: { 'en-US': 'Saturday: rounds 1–3. Sunday: rounds 4–5.' }, eligibility: { 'en-US': 'Open to rookies and junior players.' }, organizer: { 'en-US': 'Casey ChessnutZ' }, tags: { 'en-US': ['Koshnitsky Cup', 'Rookies', 'Juniors'] },
   });
 
-  const koshnitskyCup = await upsertEntryBySlug(client, spaceId, environmentId, 'event', '2026-koshnitsky-cup', {
+  koshnitskyCup = await upsertEntryBySlug(client, spaceId, environmentId, 'event', '2026-koshnitsky-cup', {
     title: { 'en-US': '2026 Koshnitsky Cup' }, slug: { 'en-US': '2026-koshnitsky-cup' },
     summary: { 'en-US': 'A major sample event with Major, Minor, and Rookies divisions.' },
     description: { 'en-US': richText('Choose the division that matches your experience, then open its event page for the full schedule, eligibility, registration, and pairings link.') },
@@ -458,30 +536,49 @@ async function run() {
       content: { 'en-US': richText(news.content) },
     });
   }
+  }
 
-  // 4) Seed landing page and site settings
+  if (process.env.CONTENTFUL_FINALIZE_ONLY) {
+    await deleteContentTypeAndEntries(client, 'sectionBlock', spaceId, environmentId);
+    console.log('Legacy Contentful cleanup complete.');
+    return;
+  }
+
+  // 4) Seed focused, editor-friendly homepage sections
+  const homeHero = await upsertEntryBySlug(client, spaceId, environmentId, 'homeHero', 'home-hero', {
+    title: { 'en-US': 'Find your next board' }, eyebrow: { 'en-US': 'Casey ChessnutZ' }, body: { 'en-US': 'A considered calendar of rated tournaments, club events, and good games across Melbourne.' }, primaryCtaLabel: { 'en-US': 'Explore tournaments' }, primaryCtaUrl: { 'en-US': '/events' }, secondaryCtaLabel: { 'en-US': 'Meet the team' }, secondaryCtaUrl: { 'en-US': '/team' },
+  });
+  const homeIntro = await upsertEntryBySlug(client, spaceId, environmentId, 'richTextSection', 'home-intro', {
+    title: { 'en-US': 'A considered calendar' }, eyebrow: { 'en-US': 'Made for players' }, body: { 'en-US': richText('Whether you are returning to tournament chess or chasing your next title, every event has the details you need before you sit at the board.') },
+  });
+  const homeImageText = await upsertEntryBySlug(client, spaceId, environmentId, 'imageTextSection', 'home-community', {
+    title: { 'en-US': 'Chess, with company' }, eyebrow: { 'en-US': 'The local game' }, body: { 'en-US': richText('Clear pairings, welcoming rooms, and time to analyse the game afterwards. We make tournament days feel considered from the first round to the last.') }, imageOnLeft: { 'en-US': true }, ctaLabel: { 'en-US': 'Our team' }, ctaUrl: { 'en-US': '/team' },
+  });
+  const homeEvents = await upsertEntryBySlug(client, spaceId, environmentId, 'featuredEventsSection', 'home-events', {
+    title: { 'en-US': 'Upcoming tournaments' }, eyebrow: { 'en-US': 'On the board' }, body: { 'en-US': 'Choose a tournament and make your next move.' }, events: { 'en-US': [{ sys: { type: 'Link', linkType: 'Entry', id: koshnitskyCup.sys.id } }, { sys: { type: 'Link', linkType: 'Entry', id: melbourneOpen.sys.id } }, { sys: { type: 'Link', linkType: 'Entry', id: springRapid.sys.id } }] },
+  });
+  const homeCountdown = await upsertEntryBySlug(client, spaceId, environmentId, 'eventCountdownSection', 'home-countdown', {
+    title: { 'en-US': 'Melbourne Open begins soon' }, eyebrow: { 'en-US': 'Next key date' }, body: { 'en-US': 'Five rounds across a full weekend of classical chess.' }, targetDate: { 'en-US': '2026-11-14T10:00:00.000Z' }, ctaLabel: { 'en-US': 'View the event' }, ctaUrl: { 'en-US': '/events/melbourne-open-2026' },
+  });
+  const classicalCard = await upsertEntryBySlug(client, spaceId, environmentId, 'featureCard', 'classical', { title: { 'en-US': 'Classical' }, body: { 'en-US': 'Long-form games for players who want to think deeply.' } });
+  const rapidCard = await upsertEntryBySlug(client, spaceId, environmentId, 'featureCard', 'rapid', { title: { 'en-US': 'Rapid' }, body: { 'en-US': 'Competitive games with momentum and a clear rhythm.' } });
+  const blitzCard = await upsertEntryBySlug(client, spaceId, environmentId, 'featureCard', 'blitz', { title: { 'en-US': 'Blitz' }, body: { 'en-US': 'Fast rounds, decisive moments, and plenty of energy.' } });
+  const homeCards = await upsertEntryBySlug(client, spaceId, environmentId, 'featureCardsSection', 'home-formats', { title: { 'en-US': 'Choose your format' }, eyebrow: { 'en-US': 'Find your rhythm' }, cards: { 'en-US': [{ sys: { type: 'Link', linkType: 'Entry', id: classicalCard.sys.id } }, { sys: { type: 'Link', linkType: 'Entry', id: rapidCard.sys.id } }, { sys: { type: 'Link', linkType: 'Entry', id: blitzCard.sys.id } }] } });
+  const homeGallery = await upsertEntryBySlug(client, spaceId, environmentId, 'imageGallerySection', 'home-gallery', { title: { 'en-US': 'At the board' }, eyebrow: { 'en-US': 'Tournament days' }, body: { 'en-US': 'Add your best tournament images here in Contentful.' }, images: { 'en-US': [] } });
+  const september = await upsertEntryBySlug(client, spaceId, environmentId, 'timelineItem', 'september', { title: { 'en-US': 'Spring Rapid' }, date: { 'en-US': 'September' }, body: { 'en-US': 'A fast-paced warm-up for the new season.' } });
+  const november = await upsertEntryBySlug(client, spaceId, environmentId, 'timelineItem', 'november', { title: { 'en-US': 'Melbourne Open' }, date: { 'en-US': 'November' }, body: { 'en-US': 'Five rounds across a full weekend of play.' } });
+  const december = await upsertEntryBySlug(client, spaceId, environmentId, 'timelineItem', 'december', { title: { 'en-US': 'Summer Blitz' }, date: { 'en-US': 'December' }, body: { 'en-US': 'Finish the year with an evening of quick chess.' } });
+  const homeTimeline = await upsertEntryBySlug(client, spaceId, environmentId, 'timelineSection', 'home-season', { title: { 'en-US': 'The season ahead' }, eyebrow: { 'en-US': 'Save the dates' }, items: { 'en-US': [{ sys: { type: 'Link', linkType: 'Entry', id: september.sys.id } }, { sys: { type: 'Link', linkType: 'Entry', id: november.sys.id } }, { sys: { type: 'Link', linkType: 'Entry', id: december.sys.id } }] } });
+  const homeQuote = await upsertEntryBySlug(client, spaceId, environmentId, 'quoteSection', 'home-quote', { quote: { 'en-US': 'The best tournament is one you remember for the people as much as the position.' }, attribution: { 'en-US': 'Alex Morgan' }, role: { 'en-US': 'Tournament Organiser' } });
+  const homeCta = await upsertEntryBySlug(client, spaceId, environmentId, 'ctaBannerSection', 'home-cta', { title: { 'en-US': 'Ready when you are' }, eyebrow: { 'en-US': 'Your next move' }, body: { 'en-US': 'Browse the calendar, find the right format, and take your seat.' }, ctaLabel: { 'en-US': 'See all tournaments' }, ctaUrl: { 'en-US': '/events' }, theme: { 'en-US': 'ink' } });
+
+  // 5) Seed landing page and site settings
   await upsertEntryBySlug(client, spaceId, environmentId, 'landingPage', 'home', {
     title: { 'en-US': 'Main Homepage' },
     slug: { 'en-US': 'home' },
-    heroHeadline: { 'en-US': 'Play, Improve, and Compete' },
-    heroDescription: {
-      'en-US': 'Your tournament hub, powered by Contentful. Editors can update this page without touching code.',
-    },
-    featuredEvents: { 'en-US': [
-      { sys: { type: 'Link', linkType: 'Entry', id: koshnitskyCup.sys.id } },
-      { sys: { type: 'Link', linkType: 'Entry', id: melbourneOpen.sys.id } },
-      { sys: { type: 'Link', linkType: 'Entry', id: springRapid.sys.id } },
-      { sys: { type: 'Link', linkType: 'Entry', id: summerBlitz.sys.id } },
-    ] },
     sections: {
       'en-US': [
-        {
-          sys: { type: 'Link', linkType: 'Entry', id: editorialBlock.sys.id },
-        },
-        { sys: { type: 'Link', linkType: 'Entry', id: countdownBlock.sys.id } },
-        { sys: { type: 'Link', linkType: 'Entry', id: formatsBlock.sys.id } },
-        { sys: { type: 'Link', linkType: 'Entry', id: seasonBlock.sys.id } },
-        { sys: { type: 'Link', linkType: 'Entry', id: registerBlock.sys.id } },
+        ...[homeHero, homeIntro, homeImageText, homeEvents, homeCountdown, homeCards, homeGallery, homeTimeline, homeQuote, homeCta].map((entry) => ({ sys: { type: 'Link', linkType: 'Entry', id: entry.sys.id } })),
       ],
     },
   });
@@ -503,6 +600,8 @@ async function run() {
       ] },
     },
   });
+
+  await deleteContentTypeAndEntries(client, 'sectionBlock', spaceId, environmentId);
 
   console.log('Zero-touch sync complete. Content model and homepage seed are live.');
 }

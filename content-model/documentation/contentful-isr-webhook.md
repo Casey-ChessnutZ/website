@@ -23,7 +23,7 @@ Create a Contentful webhook with these settings:
 | Triggers | `Entry.publish`, `Entry.unpublish`, `Entry.delete` |
 | Request verification | Enabled |
 
-The receiver accepts only `event`, `news`, `landingPage`, `sectionBlock`, and `siteSettings` entries. Add Contentful payload filters for those types if your space contains other entry types; otherwise the receiver safely acknowledges them without clearing cache.
+The receiver accepts event, news, landing page, site settings, person, and each focused homepage section/supporting entry type. Add Contentful payload filters for those types if your space contains other entry types; otherwise the receiver safely acknowledges them without clearing cache.
 
 ## 3. What is invalidated
 
@@ -31,7 +31,7 @@ The receiver accepts only `event`, `news`, `landingPage`, `sectionBlock`, and `s
 | --- | --- | --- |
 | Event | `contentful:event`, `contentful:event:<slug>` | Home, event list, matching event route, all dynamic event routes |
 | News | `contentful:news`, `contentful:news:<slug>` | News list, matching article route, all dynamic article routes |
-| Landing Page / Section Block | matching type and slug tags | Home |
+| Landing Page / Homepage section | matching type and slug tags | Home |
 | Site Settings | `contentful:siteSettings` | Root layout |
 
 Contentful delete payloads can omit fields such as `slug`. The webhook still clears the matching content-type tag and dynamic route pattern so a deleted event or article is not retained in the cache.

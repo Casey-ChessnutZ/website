@@ -8,27 +8,30 @@ import CtaBlock from './cta-block';
 import CountdownBlock from './countdown-block';
 import ImageBlock from './image-block';
 import CardBlock from './card-block';
+import QuoteSection from './quote-section';
 
 export default function RenderBlock({ block }: { block: LandingPageBlock }) {
   switch (block.type) {
-    case 'hero':
+    case 'homeHero':
       return <HeroBlock block={block} />;
-    case 'featuredEvents':
+    case 'featuredEventsSection':
       return <FeaturedEventsBlock block={block} />;
-    case 'editorialText':
+    case 'richTextSection':
       return <EditorialTextBlock block={block} />;
-    case 'imageGallery':
+    case 'imageGallerySection':
       return <ImageGalleryBlock block={block} />;
-    case 'timeline':
+    case 'timelineSection':
       return <TimelineBlock block={block} />;
-    case 'cta':
+    case 'ctaBannerSection':
       return <CtaBlock block={block} />;
-    case 'countdown':
+    case 'eventCountdownSection':
       return <CountdownBlock block={block} />;
-    case 'imageBlock':
+    case 'imageTextSection':
       return <ImageBlock block={block} />;
-    case 'cardBlock':
+    case 'featureCardsSection':
       return <CardBlock block={block} />;
+    case 'quoteSection':
+      return <QuoteSection block={block} />;
     default:
       return (
         <section className="mx-auto mt-28 max-w-304 px-5 text-muted">

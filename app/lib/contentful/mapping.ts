@@ -62,6 +62,22 @@ export function formatAssetSize(size?: number): string | undefined {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+export function resolveLinkedAsset(
+  reference: { sys?: { id?: string } } | undefined,
+  assets: Array<{ sys?: { id?: string }; url?: string; title?: string; description?: string; fields?: { title?: string; description?: string; file?: { url?: string; contentType?: string; details?: { size?: number } } } }> = [],
+) {
+  const asset = assets.find((candidate) => candidate.sys?.id === reference?.sys?.id);
+  const url = asset?.fields?.file?.url ?? asset?.url;
+  if (!asset || !url) return undefined;
+  return {
+    sys: asset.sys,
+    url: url.startsWith('//') ? `https:${url}` : url,
+    title: asset.fields?.title ?? asset.title,
+    description: asset.fields?.description ?? asset.description,
+    fields: asset.fields,
+  };
+}
+
 export function toRichTextDocument(value: unknown) {
   if (!value || typeof value !== 'object') return undefined;
   const document = value as { nodeType?: unknown; content?: unknown };

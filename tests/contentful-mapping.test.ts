@@ -1,13 +1,14 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { formatAssetSize, getAssetTypeLabel, mergeSectionBlockFields, normalizeLocation, normalizeScheduleItems, richTextToPlainText } from '../app/lib/contentful/mapping.ts';
+import { formatAssetSize, getAssetTypeLabel, normalizeLocation, normalizeScheduleItems, resolveLinkedAsset, richTextToPlainText } from '../app/lib/contentful/mapping.ts';
 
-test('merges structured block content into renderer fields', () => {
-  assert.deepEqual(
-    mergeSectionBlockFields({ headline: 'Formats', content: { cards: [{ title: 'Rapid' }] } }),
-    { headline: 'Formats', cards: [{ title: 'Rapid' }] },
-  );
+test('resolves a home hero image link from Contentful includes', () => {
+  assert.equal(resolveLinkedAsset({ sys: { id: 'asset-hero', type: 'Link', linkType: 'Asset' } }, [{ sys: { id: 'asset-hero' }, fields: { title: 'Hero image', file: { url: '//images.ctfassets.net/hero.webp' } } }])?.url, 'https://images.ctfassets.net/hero.webp');
+});
+
+test('converts a rich text homepage field to readable copy', () => {
+  assert.equal(richTextToPlainText({ nodeType: 'document', content: [{ nodeType: 'paragraph', content: [{ nodeType: 'text', value: 'Play in good company.' }] }] }), 'Play in good company.');
 });
 
 test('converts Contentful rich text to readable event copy', () => {

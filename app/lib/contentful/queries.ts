@@ -1,6 +1,6 @@
 import { contentfulFetch } from './client';
 import { contentfulTags } from './cache-revalidation';
-import { mergeSectionBlockFields, normalizeLocation, normalizeScheduleItems, resolveEventDivisions, resolveRelatedEvents, richTextToPlainText, toRichTextDocument } from './mapping';
+import { normalizeLocation, normalizeScheduleItems, resolveEventDivisions, resolveLinkedAsset, resolveRelatedEvents, richTextToPlainText, toRichTextDocument } from './mapping';
 import type { Document } from '@contentful/rich-text-types';
 import type {
   ContentfulAsset,
@@ -28,9 +28,6 @@ type ContentfulLandingPageItem = {
   fields: {
     title?: string;
     slug?: string;
-    heroHeadline?: string;
-    heroDescription?: string;
-    featuredEvents?: ContentfulReference[];
     sections?: ContentfulReference[];
   };
 };
@@ -180,7 +177,7 @@ function resolveLinkedAssets(
   });
 }
 
-function mapLandingPageItem(item: ContentfulLandingPageItem, includes: ContentfulCollection<ContentfulLandingPageItem>['includes']): LandingPageEntry {
+export function mapLandingPageItem(item: ContentfulLandingPageItem, includes: ContentfulCollection<ContentfulLandingPageItem>['includes']): LandingPageEntry {
   const entryMap = includes?.Entry ?? [];
 
   const sections = (item.fields.sections ?? [])
@@ -191,47 +188,33 @@ function mapLandingPageItem(item: ContentfulLandingPageItem, includes: Contentfu
         return null;
       }
 
+      const contentType = match.sys.contentType?.sys?.id;
+      if (!contentType || !['homeHero', 'richTextSection', 'imageTextSection', 'featuredEventsSection', 'eventCountdownSection', 'featureCardsSection', 'imageGallerySection', 'timelineSection', 'quoteSection', 'ctaBannerSection'].includes(contentType)) return null;
+      const raw = match.fields ?? {};
+      const fields = {
+        ...raw,
+        headline: typeof raw.title === 'string' ? raw.title : undefined,
+        body: typeof raw.body === 'string' ? raw.body : richTextToPlainText(raw.body),
+        media: resolveLinkedAsset(raw.image as ContentfulReference | undefined, includes?.Asset) ?? normalizeAsset(raw.image as ContentfulReference | ContentfulAsset | undefined),
+        images: resolveLinkedAssets(raw.images as ContentfulReference[] | undefined, includes?.Asset),
+        featuredEvents: resolveLinkedEntries<EventEntry>(raw.events as ContentfulReference[] | undefined, entryMap),
+        cards: resolveLinkedEntries<{ fields: Record<string, unknown> }>(raw.cards as ContentfulReference[] | undefined, entryMap).map((card) => ({ title: card.fields.title, body: card.fields.body })),
+        items: resolveLinkedEntries<{ fields: Record<string, unknown> }>(raw.items as ContentfulReference[] | undefined, entryMap).map((timelineItem) => ({ title: timelineItem.fields.title, description: timelineItem.fields.body, date: timelineItem.fields.date })),
+        ctaText: raw.ctaLabel ?? raw.primaryCtaLabel,
+        ctaUrl: raw.ctaUrl ?? raw.primaryCtaUrl,
+      };
       return {
         sys: { id: match.sys.id },
-        type:
-          (typeof match.fields.blockType === 'string'
-            ? (match.fields.blockType as LandingPageBlockType)
-            : undefined) ?? 'cardBlock',
-        fields: mergeSectionBlockFields(match.fields ?? {}),
+        type: contentType as LandingPageBlockType,
+        fields: fields as Record<string, unknown>,
       } satisfies LandingPageBlock;
     })
     .filter((section): section is LandingPageBlock => section !== null);
-
-  const featuredEvents = resolveLinkedEntries<EventEntry>(
-    item.fields.featuredEvents,
-    entryMap,
-  ).map((entry) => ({
-    sys: { id: entry.sys.id },
-    title: typeof entry?.title === 'string' ? entry.title : 'Event',
-    slug: typeof entry?.slug === 'string' ? entry.slug : '',
-    summary: typeof entry?.summary === 'string' ? entry.summary : undefined,
-    description: richTextToPlainText(entry?.description),
-    eventDate: typeof entry?.eventDate === 'string' ? entry.eventDate : undefined,
-    locationName: typeof entry?.locationName === 'string' ? entry.locationName : undefined,
-    locationDetails: typeof entry?.locationDetails === 'string' ? entry.locationDetails : undefined,
-    status: entry?.status as EventEntry['status'] | undefined,
-    heroMedia: normalizeAsset(entry?.heroMedia as ContentfulReference | ContentfulAsset | undefined),
-    registrationUrl: typeof entry?.registrationUrl === 'string' ? entry.registrationUrl : undefined,
-    format: typeof entry?.format === 'string' ? entry.format : undefined,
-    schedule: typeof entry?.schedule === 'string' ? entry.schedule : undefined,
-    prizeInformation: typeof entry?.prizeInformation === 'string' ? entry.prizeInformation : undefined,
-    eligibility: typeof entry?.eligibility === 'string' ? entry.eligibility : undefined,
-    organizer: typeof entry?.organizer === 'string' ? entry.organizer : undefined,
-    tags: Array.isArray(entry?.tags) ? entry.tags.filter((tag): tag is string => typeof tag === 'string') : undefined,
-  }));
 
   return {
     sys: item.sys,
     title: item.fields.title ?? 'Landing Page',
     slug: item.fields.slug ?? 'home',
-    heroHeadline: item.fields.heroHeadline,
-    heroDescription: item.fields.heroDescription,
-    featuredEvents: featuredEvents.length ? featuredEvents : undefined,
     sections: sections.length ? sections : undefined,
   };
 }
@@ -343,7 +326,7 @@ export async function getPublishedLandingPage(): Promise<LandingPageEntry | null
     order: '-sys.updatedAt',
     include: '10',
     limit: '1',
-  }, [...contentfulTags('landingPage'), ...contentfulTags('sectionBlock'), ...contentfulTags('event')]);
+  }, [...contentfulTags('landingPage'), ...contentfulTags('homeHero'), ...contentfulTags('richTextSection'), ...contentfulTags('imageTextSection'), ...contentfulTags('featuredEventsSection'), ...contentfulTags('eventCountdownSection'), ...contentfulTags('featureCardsSection'), ...contentfulTags('imageGallerySection'), ...contentfulTags('timelineSection'), ...contentfulTags('quoteSection'), ...contentfulTags('ctaBannerSection'), ...contentfulTags('featureCard'), ...contentfulTags('timelineItem'), ...contentfulTags('event')]);
 
   const item = response?.items?.[0];
 

@@ -1,16 +1,15 @@
 # Content model contract
 
 `landingPage` is the homepage record. The app selects its published `home` slug and
-renders its ordered `sections` references. `featuredEvents` links only to published
-`event` entries.
+renders its ordered `sections` references.
 
 `event` owns the `/events/[slug]` route. `title` and `slug` are required; all detail
 fields are optional and the page omits empty sections. Slugs must be unique.
 
-`sectionBlock` is an ordered homepage module. The supported frontend block types are
-`hero`, `featuredEvents`, `editorialText`, `imageGallery`, `timeline`, `cta`,
-`countdown`, `imageBlock`, and `cardBlock`. Unsupported block types render a safe
-placeholder instead of breaking the page.
+`landingPage.sections` is an ordered list of focused homepage module entries: Home
+Hero, Rich Text, Image & Text, Featured Events, Event Countdown, Feature Cards,
+Image Gallery, Timeline, Quote, and CTA Banner. Each entry exposes only the fields
+needed for its layout; no JSON section configuration is used.
 
 `siteSettings` provides global branding, footer text, SEO defaults, and optional
 `navigationConfig`. Its `items` array contains navigation objects with a `label`, internal `href`, `style`

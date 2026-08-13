@@ -39,20 +39,9 @@ export type ContentfulEntry<TFields> = {
 };
 
 export type LandingPageBlockType =
-  | 'hero'
-  | 'featuredEvents'
-  | 'imageGallery'
-  | 'timeline'
-  | 'cta'
-  | 'countdown'
-  | 'imageBlock'
-  | 'cardBlock'
-  | 'editorialText'
-  | 'bannerCallout'
-  | 'stats'
-  | 'sponsorStrip'
-  | 'faq'
-  | 'mediaTextSplit';
+  | 'homeHero' | 'richTextSection' | 'imageTextSection' | 'featuredEventsSection'
+  | 'eventCountdownSection' | 'featureCardsSection' | 'imageGallerySection'
+  | 'timelineSection' | 'quoteSection' | 'ctaBannerSection';
 
 export type LandingPageBlock = {
   sys: {
@@ -74,18 +63,6 @@ export type LandingPageEntry = {
   sections?: LandingPageBlock[];
 };
 
-export type SectionBlockEntry = {
-  sys: {
-    id: string;
-  };
-  title?: string;
-  blockType?: LandingPageBlockType;
-  headline?: string;
-  body?: string;
-  media?: ContentfulAsset;
-  ctaText?: string;
-  ctaUrl?: string;
-};
 
 export type SiteSettingsEntry = {
   sys: {

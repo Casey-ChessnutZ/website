@@ -58,8 +58,6 @@
     },
     { "id": "venueAddress", "name": "Venue Address", "type": "Text", "required": false, "localized": false },
     { "id": "venueLocation", "name": "Venue Location", "type": "Location", "required": false, "localized": false },
-    { "id": "venueLatitude", "name": "Venue Latitude (legacy)", "type": "Number", "required": false, "localized": false, "omitted": true },
-    { "id": "venueLongitude", "name": "Venue Longitude (legacy)", "type": "Number", "required": false, "localized": false, "omitted": true },
     { "id": "venueNotes", "name": "Venue Notes", "type": "Text", "required": false, "localized": false },
     {
       "id": "status",
@@ -155,7 +153,6 @@
       "required": false,
       "localized": false
     },
-    { "id": "scheduleItems", "name": "Schedule Items (legacy)", "type": "Array", "items": { "type": "Object" }, "required": false, "localized": false },
     { "id": "scheduleTimeline", "name": "Schedule Timeline", "type": "Object", "required": false, "localized": false },
     {
       "id": "prizeInformation",

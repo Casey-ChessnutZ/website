@@ -1,9 +1,10 @@
 # Editor guide
 
-Create an Event for each tournament and fill in the title and a unique, URL-safe slug
-first. Add the summary, date, location, format, schedule, eligibility, prize details,
+Create an Event for each tournament and enter its title first; Contentful automatically suggests a URL-safe slug from that title. Review the suggested slug before publishing, then add the summary, date, location, format, schedule, eligibility, prize details,
 and registration URL when available. Empty optional fields are intentionally hidden on
 the public page.
+
+The same automatic slug editor is configured for Event, News, Person, Landing Page, and Section Block entries. It derives slugs from `title`, except Person entries, which derive them from `name`. Editors may still adjust a suggested slug when a distinct URL is required.
 
 For the homepage, update the Landing Page with slug `home`. Use its hero fields for the
 opening message, select published featured events, and arrange Section Block references

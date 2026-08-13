@@ -1,0 +1,1 @@
+{"sys":{"id":"timelineItem","displayField":"title"},"name":"Timeline Item","displayField":"title","fields":[{"id":"title","name":"Title","type":"Symbol","required":true},{"id":"date","name":"Date label","type":"Symbol","required":true},{"id":"body","name":"Body","type":"Text","required":false}]}
