@@ -121,6 +121,7 @@
 - [X] T048 Render News article content with Contentful's official React Rich Text renderer so editor formatting is preserved.
 - [X] T049 Add News to the responsive primary navigation in both the safe fallback and seeded Site Settings configuration.
 - [X] T050 Add Contentful ISR cache tags and a signed, type- and slug-aware webhook endpoint for on-demand data and route revalidation.
+- [X] T051 Redesign the tournament calendar cards as responsive editorial tickets with date panels, metadata, accessible full-card links, and reduced-motion-safe interactions.
 
 ---
 
