@@ -4,7 +4,7 @@ import { draftMode } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 import { contentfulFetch } from '@/app/lib/contentful/client';
-import { getContentfulPreviewPath } from '@/app/lib/contentful/preview';
+import { getContentfulPreviewPath, isContentfulEntryId } from '@/app/lib/contentful/preview';
 
 type ContentfulPreviewEntry = {
   sys?: { contentType?: { sys?: { id?: string } } };
@@ -15,10 +15,6 @@ function isValidPreviewSecret(secret: string | null): boolean {
   const expected = process.env.CONTENTFUL_PREVIEW_SECRET;
   if (!secret || !expected || secret.length !== expected.length) return false;
   return timingSafeEqual(Buffer.from(secret), Buffer.from(expected));
-}
-
-function isContentfulEntryId(entryId: string | null): entryId is string {
-  return Boolean(entryId && /^[A-Za-z0-9]+$/.test(entryId));
 }
 
 export async function GET(request: Request): Promise<Response> {

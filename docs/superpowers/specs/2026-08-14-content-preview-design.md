@@ -21,7 +21,7 @@ Server components read Draft Mode and pass a `preview` boolean to Contentful que
 
 - Preview tokens and the preview secret remain server-only environment variables.
 - A missing or invalid secret returns `401`; a missing or invalid entry ID returns `400`.
-- Preview entry IDs must be Contentful-style alphanumeric IDs, and only a fixed allow-list of content types can resolve to a site route.
+- Preview entry IDs must use the project’s Contentful-safe identifier format (`A-Z`, `a-z`, `0-9`, `.`, `_`, and `-`), and only a fixed allow-list of content types can resolve to a site route.
 - Missing preview credentials leave Contentful fetches empty rather than falling back to the Delivery token, preventing accidental draft exposure.
 - Preview content is never stored in Next's Data Cache.
 

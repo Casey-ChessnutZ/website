@@ -6,6 +6,10 @@ const HOMEPAGE_CONTENT_TYPES = new Set([
   'featureCard', 'timelineItem',
 ]);
 
+export function isContentfulEntryId(entryId: string | null): entryId is string {
+  return Boolean(entryId && /^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(entryId));
+}
+
 function isRouteSlug(slug: string | undefined): slug is string {
   return Boolean(slug && !slug.includes('/') && !slug.includes('\\'));
 }

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { getContentfulConfig } from '../app/lib/contentful/client.ts';
-import { getContentfulPreviewPath, getPreviewRedirectPath, isSafePreviewPath } from '../app/lib/contentful/preview.ts';
+import { getContentfulPreviewPath, getPreviewRedirectPath, isContentfulEntryId, isSafePreviewPath } from '../app/lib/contentful/preview.ts';
 
 test('allows only internal public site routes as preview redirects', () => {
   assert.equal(isSafePreviewPath('/events/melbourne-open-2026'), true);
@@ -52,4 +52,10 @@ test('resolves supported Contentful entry types to their public routes', () => {
   assert.equal(getContentfulPreviewPath('homeHero'), '/');
   assert.equal(getContentfulPreviewPath('event', undefined), null);
   assert.equal(getContentfulPreviewPath('unknown', 'anything'), null);
+});
+
+test('accepts Contentful entry IDs created by the project seed script', () => {
+  assert.equal(isContentfulEntryId('event--melbourne-open-2026'), true);
+  assert.equal(isContentfulEntryId('homeHero--home-hero'), true);
+  assert.equal(isContentfulEntryId('event/invalid'), false);
 });
