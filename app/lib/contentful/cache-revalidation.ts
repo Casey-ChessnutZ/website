@@ -1,4 +1,4 @@
-export type ContentfulCacheType = 'event' | 'news' | 'landingPage' | 'siteSettings' | 'person' | 'homeHero' | 'richTextSection' | 'imageTextSection' | 'featuredEventsSection' | 'eventCountdownSection' | 'featureCardsSection' | 'imageGallerySection' | 'timelineSection' | 'quoteSection' | 'ctaBannerSection' | 'featureCard' | 'timelineItem';
+export type ContentfulCacheType = 'event' | 'news' | 'page' | 'landingPage' | 'siteSettings' | 'person' | 'homeHero' | 'richTextSection' | 'imageTextSection' | 'featuredEventsSection' | 'eventCountdownSection' | 'featureCardsSection' | 'imageGallerySection' | 'timelineSection' | 'quoteSection' | 'ctaBannerSection' | 'featureCard' | 'timelineItem';
 
 export type ContentfulRevalidationPath = {
   path: string;
@@ -23,7 +23,7 @@ type ContentfulWebhookPayload = {
   };
 };
 
-const supportedTypes = new Set<ContentfulCacheType>(['event', 'news', 'landingPage', 'siteSettings', 'person', 'homeHero', 'richTextSection', 'imageTextSection', 'featuredEventsSection', 'eventCountdownSection', 'featureCardsSection', 'imageGallerySection', 'timelineSection', 'quoteSection', 'ctaBannerSection', 'featureCard', 'timelineItem']);
+const supportedTypes = new Set<ContentfulCacheType>(['event', 'news', 'page', 'landingPage', 'siteSettings', 'person', 'homeHero', 'richTextSection', 'imageTextSection', 'featuredEventsSection', 'eventCountdownSection', 'featureCardsSection', 'imageGallerySection', 'timelineSection', 'quoteSection', 'ctaBannerSection', 'featureCard', 'timelineItem']);
 
 export function contentfulTags(type: ContentfulCacheType, slug?: string): string[] {
   return [`contentful:${type}`, ...(slug ? [`contentful:${type}:${slug}`] : [])];
@@ -72,6 +72,10 @@ export function createContentfulRevalidationPlan(payload: ContentfulWebhookPaylo
         { path: '/news/[slug]', type: 'page' },
       ],
     };
+  }
+
+  if (type === 'page') {
+    return { tags: contentfulTags(type, slug), paths: [...(slug ? [{ path: `/page/${slug}`, type: 'page' as const }] : []), { path: '/page/[slug]', type: 'page' }] };
   }
 
   if (type === 'person') {

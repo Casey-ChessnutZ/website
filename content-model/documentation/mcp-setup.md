@@ -12,6 +12,7 @@ the Contentful Delivery or Preview API.
 4. Apply schema changes with `npm run contentful:sync` only after reviewing the JSON
    schemas in `content-model/schemas/`.
 
-The runtime uses `CONTENTFUL_ACCESS_TOKEN` by default. Set `CONTENTFUL_PREVIEW=true`
-and `CONTENTFUL_PREVIEW_ACCESS_TOKEN` to inspect draft content locally; this disables
-the runtime cache while preview is active.
+The runtime uses `CONTENTFUL_ACCESS_TOKEN` for normal visitors. Draft content is
+request-scoped through Next.js Draft Mode; see [content preview](content-preview.md)
+for the editor setup. Do not set a global preview environment toggle: that would
+make draft content visible to all visitors.

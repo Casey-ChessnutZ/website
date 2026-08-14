@@ -26,11 +26,9 @@ test('returns null when the Contentful request cannot reach the API', async () =
 test('does not call Contentful when offline mode is enabled', async () => {
   const originalFetch = globalThis.fetch;
   const originalOffline = process.env.CONTENTFUL_OFFLINE;
-  const originalPreview = process.env.CONTENTFUL_PREVIEW;
   const originalSpace = process.env.CONTENTFUL_SPACE_ID;
   const originalToken = process.env.CONTENTFUL_ACCESS_TOKEN;
   process.env.CONTENTFUL_OFFLINE = 'true';
-  process.env.CONTENTFUL_PREVIEW = 'false';
   process.env.CONTENTFUL_SPACE_ID = 'test-space';
   process.env.CONTENTFUL_ACCESS_TOKEN = 'test-token';
   let fetchCalled = false;
@@ -46,8 +44,6 @@ test('does not call Contentful when offline mode is enabled', async () => {
     globalThis.fetch = originalFetch;
     if (originalOffline === undefined) delete process.env.CONTENTFUL_OFFLINE;
     else process.env.CONTENTFUL_OFFLINE = originalOffline;
-    if (originalPreview === undefined) delete process.env.CONTENTFUL_PREVIEW;
-    else process.env.CONTENTFUL_PREVIEW = originalPreview;
     if (originalSpace === undefined) delete process.env.CONTENTFUL_SPACE_ID;
     else process.env.CONTENTFUL_SPACE_ID = originalSpace;
     if (originalToken === undefined) delete process.env.CONTENTFUL_ACCESS_TOKEN;

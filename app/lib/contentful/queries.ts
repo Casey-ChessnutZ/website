@@ -13,6 +13,7 @@ import type {
   SiteSettingsEntry,
   NewsEntry,
   PersonEntry,
+  PageEntry,
 } from './types';
 
 type ContentfulCollection<T> = {
@@ -88,6 +89,11 @@ type ContentfulNewsItem = {
     tags?: string[];
     content?: unknown;
   };
+};
+
+type ContentfulPageItem = {
+  sys: { id: string };
+  fields: { title?: string; slug?: string; summary?: string; content?: unknown; seoTitle?: string; seoDescription?: string };
 };
 
 type ContentfulSiteSettingsItem = {
@@ -274,6 +280,10 @@ function mapNewsItem(item: ContentfulNewsItem): NewsEntry {
   };
 }
 
+function mapPageItem(item: ContentfulPageItem): PageEntry {
+  return { sys: item.sys, title: item.fields.title ?? 'Page', slug: item.fields.slug ?? '', summary: item.fields.summary, content: toRichTextDocument(item.fields.content) as Document | undefined, seoTitle: item.fields.seoTitle, seoDescription: item.fields.seoDescription };
+}
+
 function mapPersonItem(
   item: ContentfulPersonItem,
   includes?: ContentfulCollection<ContentfulPersonItem>['includes'],
@@ -319,14 +329,14 @@ function mapSiteSettingsItem(item: ContentfulSiteSettingsItem): SiteSettingsEntr
   };
 }
 
-export async function getPublishedLandingPage(): Promise<LandingPageEntry | null> {
+export async function getPublishedLandingPage(preview = false): Promise<LandingPageEntry | null> {
   const response = await contentfulFetch<ContentfulCollection<ContentfulLandingPageItem>>('entries', {
     content_type: 'landingPage',
     'fields.slug': 'home',
     order: '-sys.updatedAt',
     include: '10',
     limit: '1',
-  }, [...contentfulTags('landingPage'), ...contentfulTags('homeHero'), ...contentfulTags('richTextSection'), ...contentfulTags('imageTextSection'), ...contentfulTags('featuredEventsSection'), ...contentfulTags('eventCountdownSection'), ...contentfulTags('featureCardsSection'), ...contentfulTags('imageGallerySection'), ...contentfulTags('timelineSection'), ...contentfulTags('quoteSection'), ...contentfulTags('ctaBannerSection'), ...contentfulTags('featureCard'), ...contentfulTags('timelineItem'), ...contentfulTags('event')]);
+  }, [...contentfulTags('landingPage'), ...contentfulTags('homeHero'), ...contentfulTags('richTextSection'), ...contentfulTags('imageTextSection'), ...contentfulTags('featuredEventsSection'), ...contentfulTags('eventCountdownSection'), ...contentfulTags('featureCardsSection'), ...contentfulTags('imageGallerySection'), ...contentfulTags('timelineSection'), ...contentfulTags('quoteSection'), ...contentfulTags('ctaBannerSection'), ...contentfulTags('featureCard'), ...contentfulTags('timelineItem'), ...contentfulTags('event')], { preview });
 
   const item = response?.items?.[0];
 
@@ -337,13 +347,13 @@ export async function getPublishedLandingPage(): Promise<LandingPageEntry | null
   return mapLandingPageItem(item, response?.includes);
 }
 
-export async function getPublishedEventBySlug(slug: string): Promise<EventEntry | null> {
+export async function getPublishedEventBySlug(slug: string, preview = false): Promise<EventEntry | null> {
   const response = await contentfulFetch<ContentfulCollection<ContentfulEventItem>>('entries', {
     content_type: 'event',
     'fields.slug': slug,
     include: '10',
     limit: '1',
-  }, contentfulTags('event', slug));
+  }, contentfulTags('event', slug), { preview });
 
   const item = response?.items?.[0];
 
@@ -354,81 +364,86 @@ export async function getPublishedEventBySlug(slug: string): Promise<EventEntry 
   return mapEventItem(item, response?.includes);
 }
 
-export async function getPublishedEvents(limit = 1000): Promise<EventEntry[]> {
+export async function getPublishedEvents(limit = 1000, preview = false): Promise<EventEntry[]> {
   const response = await contentfulFetch<ContentfulCollection<ContentfulEventItem>>('entries', {
     content_type: 'event',
     include: '10',
     order: 'fields.eventDate',
     limit: String(limit),
-  }, contentfulTags('event'));
+  }, contentfulTags('event'), { preview });
 
   return (response?.items ?? []).map((item) => mapEventItem(item, response?.includes));
 }
 
-export async function getPublishedNews(limit = 12): Promise<NewsEntry[]> {
+export async function getPublishedNews(limit = 12, preview = false): Promise<NewsEntry[]> {
   const response = await contentfulFetch<ContentfulCollection<ContentfulNewsItem>>('entries', {
     content_type: 'news',
     include: '2',
     order: '-fields.publishedDate',
     limit: String(limit),
-  }, contentfulTags('news'));
+  }, contentfulTags('news'), { preview });
 
   return (response?.items ?? []).map(mapNewsItem);
 }
 
-export async function getPublishedNewsBySlug(slug: string): Promise<NewsEntry | null> {
+export async function getPublishedNewsBySlug(slug: string, preview = false): Promise<NewsEntry | null> {
   const response = await contentfulFetch<ContentfulCollection<ContentfulNewsItem>>('entries', {
     content_type: 'news',
     'fields.slug': slug,
     include: '2',
     limit: '1',
-  }, contentfulTags('news', slug));
+  }, contentfulTags('news', slug), { preview });
 
   const item = response?.items?.[0];
   return item ? mapNewsItem(item) : null;
 }
 
-export async function getPublishedPersonBySlug(slug: string): Promise<PersonEntry | null> {
+export async function getPublishedPageBySlug(slug: string, preview = false): Promise<PageEntry | null> {
+  const response = await contentfulFetch<ContentfulCollection<ContentfulPageItem>>('entries', { content_type: 'page', 'fields.slug': slug, limit: '1' }, contentfulTags('page', slug), { preview });
+  return response?.items?.[0] ? mapPageItem(response.items[0]) : null;
+}
+
+export async function getPublishedPersonBySlug(slug: string, preview = false): Promise<PersonEntry | null> {
   const response = await contentfulFetch<ContentfulCollection<ContentfulPersonItem>>('entries', {
     content_type: 'person',
     'fields.slug': slug,
     include: '2',
     limit: '1',
-  }, contentfulTags('person', slug));
+  }, contentfulTags('person', slug), { preview });
 
   const item = response?.items?.[0];
   return item ? mapPersonItem(item, response?.includes) : null;
 }
 
-export async function getPublishedPeople(): Promise<PersonEntry[]> {
+export async function getPublishedPeople(preview = false): Promise<PersonEntry[]> {
   const response = await contentfulFetch<ContentfulCollection<ContentfulPersonItem>>('entries', {
     content_type: 'person',
     include: '2',
     order: 'fields.name',
     limit: '100',
-  }, contentfulTags('person'));
+  }, contentfulTags('person'), { preview });
 
   return (response?.items ?? []).map((item) => mapPersonItem(item, response?.includes));
 }
 
-export async function getPublishedEventsForPerson(personId: string): Promise<EventEntry[]> {
+export async function getPublishedEventsForPerson(personId: string, preview = false): Promise<EventEntry[]> {
   const response = await contentfulFetch<ContentfulCollection<ContentfulEventItem>>('entries', {
     content_type: 'event',
     links_to_entry: personId,
     include: '2',
     order: 'fields.eventDate',
     limit: '12',
-  }, [...contentfulTags('event'), ...contentfulTags('person')]);
+  }, [...contentfulTags('event'), ...contentfulTags('person')], { preview });
 
   return (response?.items ?? []).map((item) => mapEventItem(item, response?.includes));
 }
 
-export async function getSiteSettings(): Promise<SiteSettingsEntry> {
+export async function getSiteSettings(preview = false): Promise<SiteSettingsEntry> {
   const response = await contentfulFetch<ContentfulCollection<ContentfulSiteSettingsItem>>('entries', {
     content_type: 'siteSettings',
     limit: '1',
     include: '10',
-  }, contentfulTags('siteSettings'));
+  }, contentfulTags('siteSettings'), { preview });
 
   const item = response?.items?.[0];
 

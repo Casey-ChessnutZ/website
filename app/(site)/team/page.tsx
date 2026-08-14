@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { draftMode } from 'next/headers';
 
 import TeamDirectoryCard from '@/app/components/team/team-directory-card';
 import { getPublishedPeople } from '@/app/lib/contentful/queries';
@@ -13,7 +14,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function TeamPage() {
-  const people = await getPublishedPeople();
+  const { isEnabled: preview } = await draftMode();
+  const people = await getPublishedPeople(preview);
 
   return (
     <main id="main-content">

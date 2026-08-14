@@ -1,6 +1,7 @@
 import EventCard from '@/app/components/events/event-card';
 import { filterEventsByCalendarYear, getCurrentMelbourneYear, getEventCalendarYears } from '@/app/components/events/event-calendar-data';
 import Link from 'next/link';
+import { draftMode } from 'next/headers';
 import { getPublishedEvents } from '@/app/lib/contentful/queries';
 import { getPageMetadata } from '@/app/lib/seo/metadata';
 
@@ -9,7 +10,8 @@ export async function generateMetadata() { return getPageMetadata('Tournament ca
 type EventsPageProps = { searchParams: Promise<{ year?: string | string[] }> };
 
 export default async function EventsPage({ searchParams }: EventsPageProps) {
-  const events = await getPublishedEvents();
+  const { isEnabled: preview } = await draftMode();
+  const events = await getPublishedEvents(1000, preview);
   const currentYear = getCurrentMelbourneYear();
   const availableYears = getEventCalendarYears(events);
   const requestedYear = (await searchParams).year;

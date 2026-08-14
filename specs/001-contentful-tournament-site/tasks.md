@@ -133,6 +133,8 @@
 - [X] T060 Update homepage mapping, cache invalidation, and rendering to dispatch sections by Contentful content type.
 - [X] T061 Synchronise the destructive Contentful migration, publish the ten-section home example, and verify the live model.
 - [X] T062 Redesign Featured Events as a responsive editorial lead card and ordered tournament index.
+- [X] T063 Add generic Contentful Pages at `/page/{slug}` with rich content, scoped ISR, and seeded policy examples.
+- [X] T064 Add secure request-scoped Contentful Draft Mode preview, preserve published ISR, and document editor/Vercel setup.
 
 ---
 

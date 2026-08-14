@@ -8,13 +8,14 @@ type ContentfulClientConfig = {
   preview: boolean;
 };
 
-function getContentfulConfig(): ContentfulClientConfig | null {
+export type ContentfulFetchOptions = { preview?: boolean };
+
+export function getContentfulConfig(preview = false): ContentfulClientConfig | null {
   if (process.env.CONTENTFUL_OFFLINE === 'true') {
     return null;
   }
 
   const spaceId = process.env.CONTENTFUL_SPACE_ID;
-  const preview = process.env.CONTENTFUL_PREVIEW === 'true';
   const accessToken = preview
     ? process.env.CONTENTFUL_PREVIEW_ACCESS_TOKEN
     : process.env.CONTENTFUL_ACCESS_TOKEN;
@@ -36,8 +37,9 @@ export async function contentfulFetch<T>(
   path: string,
   params: Record<string, string | undefined> = {},
   tags: string[] = [],
+  options: ContentfulFetchOptions = {},
 ): Promise<T | null> {
-  const config = getContentfulConfig();
+  const config = getContentfulConfig(options.preview);
 
   if (!config) {
     return null;

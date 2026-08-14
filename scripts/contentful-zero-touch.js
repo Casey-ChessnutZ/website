@@ -336,6 +336,7 @@ async function run() {
   await upsertContentType(client, 'person.schema.json', spaceId, environmentId);
   await upsertContentType(client, 'event.schema.json', spaceId, environmentId);
   await upsertContentType(client, 'news.schema.json', spaceId, environmentId);
+  await upsertContentType(client, 'page.schema.json', spaceId, environmentId);
   for (const schemaFile of ['home-hero.schema.json', 'rich-text-section.schema.json', 'image-text-section.schema.json', 'featured-events-section.schema.json', 'event-countdown-section.schema.json', 'feature-card.schema.json', 'feature-cards-section.schema.json', 'image-gallery-section.schema.json', 'timeline-item.schema.json', 'timeline-section.schema.json', 'quote-section.schema.json', 'cta-banner-section.schema.json']) {
     await upsertContentType(client, schemaFile, spaceId, environmentId);
   }
@@ -344,6 +345,7 @@ async function run() {
   await configureSlugEditor(client, 'person.schema.json', spaceId, environmentId);
   await configureSlugEditor(client, 'event.schema.json', spaceId, environmentId);
   await configureSlugEditor(client, 'news.schema.json', spaceId, environmentId);
+  await configureSlugEditor(client, 'page.schema.json', spaceId, environmentId);
   await configureSlugEditor(client, 'landing-page.schema.json', spaceId, environmentId);
   }
 
@@ -535,6 +537,14 @@ async function run() {
       tags: { 'en-US': news.tags },
       content: { 'en-US': richText(news.content) },
     });
+  }
+  const pages = [
+    { slug: 'terms-and-conditions', title: 'Terms and Conditions', summary: 'The conditions that apply when you register for and attend our events.', content: 'These terms explain event registrations, conduct, refunds, and our responsibilities to players.' },
+    { slug: 'privacy', title: 'Privacy', summary: 'How Casey ChessnutZ handles the information you share with us.', content: 'We use your contact details only to administer events, provide important updates, and improve the tournament experience.' },
+    { slug: 'faq', title: 'Frequently Asked Questions', summary: 'Practical answers for players before tournament day.', content: 'Check the relevant event page for registration deadlines, venue details, pairing information, and eligibility.' },
+  ];
+  for (const page of pages) {
+    await upsertEntryBySlug(client, spaceId, environmentId, 'page', page.slug, { title: { 'en-US': page.title }, slug: { 'en-US': page.slug }, summary: { 'en-US': page.summary }, content: { 'en-US': richText(page.content) } });
   }
   }
 

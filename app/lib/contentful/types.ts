@@ -129,3 +129,13 @@ export type NewsEntry = {
   tags?: string[];
   content?: Document;
 };
+
+export type PageEntry = {
+  sys: { id: string };
+  title: string;
+  slug: string;
+  summary?: string;
+  content?: Document;
+  seoTitle?: string;
+  seoDescription?: string;
+};

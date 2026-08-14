@@ -31,6 +31,7 @@ The receiver accepts event, news, landing page, site settings, person, and each 
 | --- | --- | --- |
 | Event | `contentful:event`, `contentful:event:<slug>` | Home, event list, matching event route, all dynamic event routes |
 | News | `contentful:news`, `contentful:news:<slug>` | News list, matching article route, all dynamic article routes |
+| Page | `contentful:page`, `contentful:page:<slug>` | Matching `/page/<slug>` route and dynamic Page route |
 | Landing Page / Homepage section | matching type and slug tags | Home |
 | Site Settings | `contentful:siteSettings` | Root layout |
 

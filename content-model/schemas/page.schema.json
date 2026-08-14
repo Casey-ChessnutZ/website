@@ -1,0 +1,14 @@
+{
+  "sys": { "id": "page", "displayField": "title" },
+  "name": "Page",
+  "description": "Evergreen editorial page such as FAQ, privacy, or terms and conditions",
+  "displayField": "title",
+  "fields": [
+    { "id": "title", "name": "Title", "type": "Symbol", "required": true, "localized": false },
+    { "id": "slug", "name": "Slug", "type": "Symbol", "required": true, "localized": false },
+    { "id": "summary", "name": "Summary", "type": "Text", "required": false, "localized": false },
+    { "id": "content", "name": "Content", "type": "RichText", "required": true, "localized": false },
+    { "id": "seoTitle", "name": "SEO Title", "type": "Symbol", "required": false, "localized": false },
+    { "id": "seoDescription", "name": "SEO Description", "type": "Text", "required": false, "localized": false }
+  ]
+}
