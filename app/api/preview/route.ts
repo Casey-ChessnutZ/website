@@ -3,12 +3,22 @@ import { timingSafeEqual } from 'node:crypto';
 import { draftMode } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-import { getPreviewRedirectPath, isSafePreviewPath } from '@/app/lib/contentful/preview';
+import { contentfulFetch } from '@/app/lib/contentful/client';
+import { getContentfulPreviewPath } from '@/app/lib/contentful/preview';
+
+type ContentfulPreviewEntry = {
+  sys?: { contentType?: { sys?: { id?: string } } };
+  fields?: { slug?: string };
+};
 
 function isValidPreviewSecret(secret: string | null): boolean {
   const expected = process.env.CONTENTFUL_PREVIEW_SECRET;
   if (!secret || !expected || secret.length !== expected.length) return false;
   return timingSafeEqual(Buffer.from(secret), Buffer.from(expected));
+}
+
+function isContentfulEntryId(entryId: string | null): entryId is string {
+  return Boolean(entryId && /^[A-Za-z0-9]+$/.test(entryId));
 }
 
 export async function GET(request: Request): Promise<Response> {
@@ -17,11 +27,15 @@ export async function GET(request: Request): Promise<Response> {
     return Response.json({ message: 'Unauthorized.' }, { status: 401 });
   }
 
-  const requestedPath = url.searchParams.get('path');
-  if (requestedPath && !isSafePreviewPath(requestedPath)) {
-    return Response.json({ message: 'Invalid preview path.' }, { status: 400 });
+  const entryId = url.searchParams.get('entryId');
+  if (!isContentfulEntryId(entryId)) {
+    return Response.json({ message: 'A valid Contentful entryId is required.' }, { status: 400 });
   }
 
+  const entry = await contentfulFetch<ContentfulPreviewEntry>(`entries/${entryId}`, {}, [], { preview: true });
+  const path = getContentfulPreviewPath(entry?.sys?.contentType?.sys?.id, entry?.fields?.slug);
+  if (!path) return Response.json({ message: 'This Contentful entry does not have a preview route.' }, { status: 404 });
+
   (await draftMode()).enable();
-  return NextResponse.redirect(new URL(getPreviewRedirectPath(requestedPath), request.url));
+  return NextResponse.redirect(new URL(path, request.url));
 }

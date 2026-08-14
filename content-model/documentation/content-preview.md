@@ -17,16 +17,16 @@ token or the secret with a `NEXT_PUBLIC_` prefix.
 
 ## Contentful preview URL
 
-Use the deployed site URL with this route:
+Use the same deployed-site URL for every selected Contentful content type:
 
 ```text
-https://<site-host>/api/preview?secret=<CONTENTFUL_PREVIEW_SECRET>&path=<site-path>
+https://<site-host>/api/preview?secret=<CONTENTFUL_PREVIEW_SECRET>&entryId={entry.sys.id}
 ```
 
-`path` must be a URL-encoded internal route, such as `/`, `/events/melbourne-open-2026`,
-`/news/entry-slug`, `/team/person-slug`, or `/page/privacy`. The handler rejects external
-URLs and `/api/*` routes. Configure an entry-specific Contentful preview URL so it resolves
-to the corresponding public site route; use `/` for homepage section entries.
+Contentful replaces `{entry.sys.id}` with the selected entry ID. The site resolves the draft
+entry through the Preview API and maps its content type and slug to the correct route:
+Events, News, People, Pages, Landing Pages, Site Settings, and homepage blocks are supported.
+No editor-managed `path`, `contentType`, or duplicate routing field is required.
 
 When active, the site shows a **Previewing draft content** notice. Exit through that notice,
 or navigate to:

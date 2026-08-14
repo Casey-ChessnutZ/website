@@ -4,7 +4,7 @@
 
 **Goal:** Add secure Contentful Draft Mode preview while retaining cached, ISR-backed published content.
 
-**Architecture:** A dedicated preview utility validates editor redirects and reads Next Draft Mode. Route handlers toggle Draft Mode after validating a server-only secret. Page/layout server components pass the resulting boolean into Contentful query functions; the fetch helper selects Preview API/no-store or Delivery API/tagged cache based on that explicit value.
+**Architecture:** A dedicated preview utility maps a Contentful entry's actual type and slug to an allow-listed site route. The preview route validates a server-only secret and `{entry.sys.id}`, fetches that entry from the Preview API, then enables Draft Mode. Page/layout server components pass the resulting boolean into Contentful query functions; the fetch helper selects Preview API/no-store or Delivery API/tagged cache based on that explicit value.
 
 **Tech Stack:** Next.js 15 App Router, TypeScript, native Node test runner, Contentful Delivery and Preview REST APIs.
 
@@ -26,7 +26,7 @@
 - Test: `tests/contentful-preview.test.ts`
 
 **Interfaces:**
-- Produces `isSafePreviewPath(path: string | null): path is string` and `getPreviewRedirectPath(path: string | null): string`.
+- Produces `getContentfulPreviewPath(contentType, slug): string | null` and `getPreviewRedirectPath(path: string | null): string`.
 - Produces `GET(request: Request): Promise<Response>` preview route handlers.
 
 - [X] Write failing tests for allowed site paths, rejected external/API paths, and the safe fallback route.

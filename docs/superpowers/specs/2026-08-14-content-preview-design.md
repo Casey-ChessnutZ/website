@@ -6,7 +6,7 @@ Let Contentful editors view unpublished changes at the appropriate site URL with
 
 ## Architecture
 
-Next.js Draft Mode is the sole switch for preview. `GET /api/preview` validates a server-only `CONTENTFUL_PREVIEW_SECRET`, validates a same-site route, enables Draft Mode, and redirects the editor to that route. `GET /api/preview/exit` disables Draft Mode and returns the editor to a safe internal route.
+Next.js Draft Mode is the sole switch for preview. `GET /api/preview` validates a server-only `CONTENTFUL_PREVIEW_SECRET`, resolves a supplied Contentful entry ID through the Preview API, maps its actual content type and slug to a safe site route, enables Draft Mode, and redirects the editor there. `GET /api/preview/exit` disables Draft Mode and returns the editor to a safe internal route.
 
 Server components read Draft Mode and pass a `preview` boolean to Contentful query functions. The fetch layer chooses the Content Preview API and `CONTENTFUL_PREVIEW_ACCESS_TOKEN` only when that boolean is true, using `no-store`; normal requests continue to use the Delivery API, cache tags, and the existing one-hour revalidation policy. The former global `CONTENTFUL_PREVIEW` toggle is removed.
 
@@ -14,14 +14,14 @@ Server components read Draft Mode and pass a `preview` boolean to Contentful que
 
 - Preview the home page, event calendar/detail, news list/detail, generic pages, team directory/profiles, and shared Site Settings.
 - Preserve existing published route URLs, cache tags, and Contentful publish-webhook handling.
-- Support a Contentful Preview URL targeting `/api/preview?secret=...&path=...` and a clear exit URL for editors.
+- Support one Contentful Preview URL targeting `/api/preview?secret=...&entryId={entry.sys.id}` and a clear exit URL for editors.
 - Document Vercel configuration, including the optional Protection Bypass requirement for protected deployments.
 
 ## Security and failure handling
 
 - Preview tokens and the preview secret remain server-only environment variables.
-- A missing or invalid secret returns `401`; a missing/unsafe redirect path returns `400`.
-- Preview paths must be internal absolute paths, cannot begin with `//`, and must not target `/api` routes.
+- A missing or invalid secret returns `401`; a missing or invalid entry ID returns `400`.
+- Preview entry IDs must be Contentful-style alphanumeric IDs, and only a fixed allow-list of content types can resolve to a site route.
 - Missing preview credentials leave Contentful fetches empty rather than falling back to the Delivery token, preventing accidental draft exposure.
 - Preview content is never stored in Next's Data Cache.
 
@@ -33,4 +33,4 @@ Server components read Draft Mode and pass a `preview` boolean to Contentful que
 
 ## Editor setup
 
-Set `CONTENTFUL_PREVIEW_ACCESS_TOKEN` and a long random `CONTENTFUL_PREVIEW_SECRET` in local and Vercel environments. Configure Contentful's preview URL to call `/api/preview` with the secret and a path resolved for the entry. If Vercel Deployment Protection is enabled, configure its Protection Bypass for Automation and include that token as documented by Contentful.
+Set `CONTENTFUL_PREVIEW_ACCESS_TOKEN` and a long random `CONTENTFUL_PREVIEW_SECRET` in local and Vercel environments. Configure each Contentful preview type with the same URL, `/api/preview?secret=...&entryId={entry.sys.id}`. If Vercel Deployment Protection is enabled, configure its Protection Bypass for Automation and include that token as documented by Contentful.

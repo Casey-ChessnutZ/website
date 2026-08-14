@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { getContentfulConfig } from '../app/lib/contentful/client.ts';
-import { getPreviewRedirectPath, isSafePreviewPath } from '../app/lib/contentful/preview.ts';
+import { getContentfulPreviewPath, getPreviewRedirectPath, isSafePreviewPath } from '../app/lib/contentful/preview.ts';
 
 test('allows only internal public site routes as preview redirects', () => {
   assert.equal(isSafePreviewPath('/events/melbourne-open-2026'), true);
@@ -42,4 +42,14 @@ test('uses the Preview API and token only for an explicit preview request', () =
     }
     Object.assign(process.env, originalEnvironment);
   }
+});
+
+test('resolves supported Contentful entry types to their public routes', () => {
+  assert.equal(getContentfulPreviewPath('event', 'melbourne-open-2026'), '/events/melbourne-open-2026');
+  assert.equal(getContentfulPreviewPath('news', 'pairings-update'), '/news/pairings-update');
+  assert.equal(getContentfulPreviewPath('person', 'casey-chessnut'), '/team/casey-chessnut');
+  assert.equal(getContentfulPreviewPath('page', 'privacy'), '/page/privacy');
+  assert.equal(getContentfulPreviewPath('homeHero'), '/');
+  assert.equal(getContentfulPreviewPath('event', undefined), null);
+  assert.equal(getContentfulPreviewPath('unknown', 'anything'), null);
 });
