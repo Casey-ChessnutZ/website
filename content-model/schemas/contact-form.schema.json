@@ -7,6 +7,7 @@
     { "id": "title", "name": "Title", "type": "Symbol", "required": true, "localized": false },
     { "id": "intro", "name": "Introduction", "type": "Text", "required": true, "localized": false },
     { "id": "successMessage", "name": "Success message", "type": "Text", "required": true, "localized": false },
-    { "id": "fields", "name": "Fields", "type": "Array", "required": true, "localized": false, "items": { "type": "Object" } }
+    { "id": "fields", "name": "Legacy fields", "type": "Array", "required": false, "omitted": true, "localized": false, "items": { "type": "Object" } },
+    { "id": "fieldDefinitions", "name": "Fields", "type": "Object", "required": true, "localized": false }
   ]
 }

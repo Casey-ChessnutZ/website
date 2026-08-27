@@ -177,6 +177,19 @@ async function configureSlugEditor(client, schemaFile, spaceId, environmentId) {
   console.log(`Configured slug editor: ${contentTypeId} ← ${trackingFieldId}`);
 }
 
+async function configureContactFormEditor(client, spaceId, environmentId) {
+  const contentTypeId = 'contactForm';
+  const editorInterface = await client.editorInterface.get({ contentTypeId, spaceId, environmentId });
+  const controls = (editorInterface.controls || []).filter((control) => control.fieldId !== 'fields' && control.fieldId !== 'fieldDefinitions');
+  controls.push({ fieldId: 'fieldDefinitions', widgetNamespace: 'builtin', widgetId: 'objectEditor' });
+
+  await client.editorInterface.update(
+    { contentTypeId, spaceId, environmentId },
+    { ...editorInterface, controls, sys: { version: editorInterface.sys.version } },
+  );
+  console.log('Configured Contact Form JSON editor.');
+}
+
 async function upsertEntryBySlug(client, spaceId, environmentId, contentType, slug, fields) {
   const entryId = `${contentType}--${slug}`.replace(/[^a-zA-Z0-9-_.]/g, '-');
   const existing = await client.entry
@@ -348,6 +361,7 @@ async function run() {
   await configureSlugEditor(client, 'news.schema.json', spaceId, environmentId);
   await configureSlugEditor(client, 'page.schema.json', spaceId, environmentId);
   await configureSlugEditor(client, 'landing-page.schema.json', spaceId, environmentId);
+  await configureContactFormEditor(client, spaceId, environmentId);
   }
 
   // Previous generic sectionBlock seed retained only as source-history while the clean migration runs.
@@ -558,12 +572,12 @@ async function run() {
     title: { 'en-US': 'Start a conversation.' },
     intro: { 'en-US': 'Ask about tournament entries, accessibility, partnerships, or coaching.' },
     successMessage: { 'en-US': 'Thanks — your message has been sent.' },
-    fields: { 'en-US': [
+    fieldDefinitions: { 'en-US': { items: [
       { id: 'name', label: 'Name', type: 'text', required: true, placeholder: 'Your name' },
       { id: 'email', label: 'Email', type: 'email', required: true, placeholder: 'you@example.com' },
       { id: 'subject', label: 'Subject', type: 'text', required: true, placeholder: 'How can we help?' },
       { id: 'message', label: 'Message', type: 'textarea', required: true, placeholder: 'Write your message' },
-    ] },
+    ] } },
   });
   }
 

@@ -8,7 +8,10 @@ function asTrimmedString(value: unknown): string | undefined {
 
 export function mapContactFormItem(item: { fields?: Record<string, unknown> }): ContactFormDefinition {
   const fields = item.fields ?? {};
-  const formFields = Array.isArray(fields.fields) ? fields.fields : [];
+  const fieldDefinitions = fields.fieldDefinitions;
+  const formFields = fieldDefinitions && typeof fieldDefinitions === 'object' && !Array.isArray(fieldDefinitions) && Array.isArray((fieldDefinitions as Record<string, unknown>).items)
+    ? (fieldDefinitions as Record<string, unknown>).items as unknown[]
+    : Array.isArray(fields.fields) ? fields.fields : [];
 
   return {
     title: asTrimmedString(fields.title) ?? 'Contact us',

@@ -14,6 +14,17 @@ test('maps an editor-defined select field with its options', () => {
   );
 });
 
+test('maps fields stored in the Contentful JSON object', () => {
+  assert.deepEqual(
+    mapContactFormItem({ fields: { title: 'Contact', intro: 'Hello', successMessage: 'Received', fieldDefinitions: { items: [
+      { id: 'email', label: 'Email', type: 'email', required: true },
+    ] } } }),
+    { title: 'Contact', intro: 'Hello', successMessage: 'Received', fields: [
+      { id: 'email', label: 'Email', type: 'email', required: true },
+    ] },
+  );
+});
+
 test('drops malformed fields and unsupported field types', () => {
   assert.deepEqual(
     mapContactFormItem({ fields: { title: 'Contact', intro: 'Hello', successMessage: 'Received', fields: [

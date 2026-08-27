@@ -66,11 +66,13 @@ export async function contentfulFetch<T>(
     });
 
     if (!response.ok) {
+      console.error('[contentful] request failed', { path, preview: config.preview, status: response.status, statusText: response.statusText });
       return null;
     }
 
     return (await response.json()) as T;
-  } catch {
+  } catch (error) {
+    console.error('[contentful] request failed', { path, preview: config.preview, errorName: error instanceof Error ? error.name : 'UnknownError' });
     return null;
   }
 }
