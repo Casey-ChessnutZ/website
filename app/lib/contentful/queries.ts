@@ -15,8 +15,10 @@ import type {
   PersonEntry,
   PageEntry,
   ContactFormDefinition,
+  PhotoAlbumEntry,
 } from './types';
 import { mapContactFormItem } from '@/app/lib/contact/contact-form-definition';
+import { mapPhotoAlbumItem } from './photo-album';
 
 type ContentfulCollection<T> = {
   items: T[];
@@ -101,6 +103,17 @@ type ContentfulPageItem = {
 type ContentfulContactFormItem = {
   sys: { id: string };
   fields: Record<string, unknown>;
+};
+
+type ContentfulPhotoAlbumItem = {
+  sys: { id: string };
+  fields: {
+    title?: string;
+    slug?: string;
+    date?: string;
+    description?: string;
+    images?: ContentfulReference[];
+  };
 };
 
 type ContentfulSiteSettingsItem = {
@@ -414,6 +427,20 @@ export async function getPublishedNewsBySlug(slug: string, preview = false): Pro
 
   const item = response?.items?.[0];
   return item ? mapNewsItem(item) : null;
+}
+
+export async function getPublishedPhotoAlbums(preview = false): Promise<PhotoAlbumEntry[]> {
+  const response = await contentfulFetch<ContentfulCollection<ContentfulPhotoAlbumItem>>('entries', {
+    content_type: 'photoAlbum', include: '2', order: '-fields.date', limit: '100',
+  }, contentfulTags('photoAlbum'), { preview });
+  return (response?.items ?? []).map((item) => mapPhotoAlbumItem(item, response?.includes));
+}
+
+export async function getPublishedPhotoAlbumBySlug(slug: string, preview = false): Promise<PhotoAlbumEntry | null> {
+  const response = await contentfulFetch<ContentfulCollection<ContentfulPhotoAlbumItem>>('entries', {
+    content_type: 'photoAlbum', 'fields.slug': slug, include: '2', limit: '1',
+  }, contentfulTags('photoAlbum', slug), { preview });
+  return response?.items?.[0] ? mapPhotoAlbumItem(response.items[0], response.includes) : null;
 }
 
 export async function getPublishedPageBySlug(slug: string, preview = false): Promise<PageEntry | null> {

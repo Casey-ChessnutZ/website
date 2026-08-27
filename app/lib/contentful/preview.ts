@@ -21,6 +21,7 @@ export function getContentfulPreviewPath(contentType: string | undefined, slug: 
   const encodedSlug = encodeURIComponent(slug);
   if (contentType === 'event') return `/events/${encodedSlug}`;
   if (contentType === 'news') return `/news/${encodedSlug}`;
+  if (contentType === 'photoAlbum') return `/album/${encodedSlug}`;
   if (contentType === 'person') return `/team/${encodedSlug}`;
   if (contentType === 'page') return `/page/${encodedSlug}`;
   return null;

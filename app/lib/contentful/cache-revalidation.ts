@@ -1,4 +1,4 @@
-export type ContentfulCacheType = 'event' | 'news' | 'page' | 'landingPage' | 'siteSettings' | 'contactForm' | 'person' | 'homeHero' | 'richTextSection' | 'imageTextSection' | 'featuredEventsSection' | 'eventCountdownSection' | 'featureCardsSection' | 'imageGallerySection' | 'timelineSection' | 'quoteSection' | 'ctaBannerSection' | 'featureCard' | 'timelineItem';
+export type ContentfulCacheType = 'event' | 'news' | 'page' | 'photoAlbum' | 'landingPage' | 'siteSettings' | 'contactForm' | 'person' | 'homeHero' | 'richTextSection' | 'imageTextSection' | 'featuredEventsSection' | 'eventCountdownSection' | 'featureCardsSection' | 'imageGallerySection' | 'timelineSection' | 'quoteSection' | 'ctaBannerSection' | 'featureCard' | 'timelineItem';
 
 export type ContentfulRevalidationPath = {
   path: string;
@@ -23,7 +23,7 @@ type ContentfulWebhookPayload = {
   };
 };
 
-const supportedTypes = new Set<ContentfulCacheType>(['event', 'news', 'page', 'landingPage', 'siteSettings', 'contactForm', 'person', 'homeHero', 'richTextSection', 'imageTextSection', 'featuredEventsSection', 'eventCountdownSection', 'featureCardsSection', 'imageGallerySection', 'timelineSection', 'quoteSection', 'ctaBannerSection', 'featureCard', 'timelineItem']);
+const supportedTypes = new Set<ContentfulCacheType>(['event', 'news', 'page', 'photoAlbum', 'landingPage', 'siteSettings', 'contactForm', 'person', 'homeHero', 'richTextSection', 'imageTextSection', 'featuredEventsSection', 'eventCountdownSection', 'featureCardsSection', 'imageGallerySection', 'timelineSection', 'quoteSection', 'ctaBannerSection', 'featureCard', 'timelineItem']);
 
 export function contentfulTags(type: ContentfulCacheType, slug?: string): string[] {
   return [`contentful:${type}`, ...(slug ? [`contentful:${type}:${slug}`] : [])];
@@ -72,6 +72,10 @@ export function createContentfulRevalidationPlan(payload: ContentfulWebhookPaylo
         { path: '/news/[slug]', type: 'page' },
       ],
     };
+  }
+
+  if (type === 'photoAlbum') {
+    return { tags: contentfulTags(type, slug), paths: [{ path: '/album', type: 'page' }, ...(slug ? [{ path: `/album/${slug}`, type: 'page' as const }] : []), { path: '/album/[slug]', type: 'page' }] };
   }
 
   if (type === 'page') {

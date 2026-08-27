@@ -47,6 +47,7 @@ test('uses the Preview API and token only for an explicit preview request', () =
 test('resolves supported Contentful entry types to their public routes', () => {
   assert.equal(getContentfulPreviewPath('event', 'melbourne-open-2026'), '/events/melbourne-open-2026');
   assert.equal(getContentfulPreviewPath('news', 'pairings-update'), '/news/pairings-update');
+  assert.equal(getContentfulPreviewPath('photoAlbum', 'spring-rapid-2026'), '/album/spring-rapid-2026');
   assert.equal(getContentfulPreviewPath('person', 'casey-chessnut'), '/team/casey-chessnut');
   assert.equal(getContentfulPreviewPath('page', 'privacy'), '/page/privacy');
   assert.equal(getContentfulPreviewPath('homeHero'), '/');

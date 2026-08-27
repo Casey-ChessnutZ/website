@@ -1,0 +1,13 @@
+{
+  "sys": { "id": "photoAlbum", "displayField": "title" },
+  "name": "Photo Album",
+  "description": "A dated gallery of tournament and community photographs",
+  "displayField": "title",
+  "fields": [
+    { "id": "title", "name": "Title", "type": "Symbol", "required": true, "localized": false },
+    { "id": "slug", "name": "Slug", "type": "Symbol", "required": true, "localized": false },
+    { "id": "date", "name": "Date", "type": "Date", "required": true, "localized": false },
+    { "id": "description", "name": "Description", "type": "Text", "required": false, "localized": false },
+    { "id": "images", "name": "Images", "type": "Array", "items": { "type": "Link", "linkType": "Asset" }, "required": false, "localized": false }
+  ]
+}

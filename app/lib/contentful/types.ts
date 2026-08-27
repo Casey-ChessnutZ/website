@@ -149,6 +149,15 @@ export type NewsEntry = {
   content?: Document;
 };
 
+export type PhotoAlbumEntry = {
+  sys: { id: string };
+  title: string;
+  slug: string;
+  date?: string;
+  description?: string;
+  images: ContentfulAsset[];
+};
+
 export type PageEntry = {
   sys: { id: string };
   title: string;

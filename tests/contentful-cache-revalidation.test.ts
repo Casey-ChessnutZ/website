@@ -36,6 +36,23 @@ test('plans collection and dynamic route invalidation for a slugless news deleti
   );
 });
 
+test('revalidates the photo album index and detail route', () => {
+  assert.deepEqual(
+    createContentfulRevalidationPlan({
+      sys: { contentType: { sys: { id: 'photoAlbum' } } },
+      fields: { slug: { 'en-US': 'spring-rapid-2026' } },
+    }),
+    {
+      tags: ['contentful:photoAlbum', 'contentful:photoAlbum:spring-rapid-2026'],
+      paths: [
+        { path: '/album', type: 'page' },
+        { path: '/album/spring-rapid-2026', type: 'page' },
+        { path: '/album/[slug]', type: 'page' },
+      ],
+    },
+  );
+});
+
 test('revalidates team routes when a person profile changes', () => {
   assert.deepEqual(
     createContentfulRevalidationPlan({

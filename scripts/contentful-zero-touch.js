@@ -351,6 +351,7 @@ async function run() {
   await upsertContentType(client, 'news.schema.json', spaceId, environmentId);
   await upsertContentType(client, 'page.schema.json', spaceId, environmentId);
   await upsertContentType(client, 'contact-form.schema.json', spaceId, environmentId);
+  await upsertContentType(client, 'photo-album.schema.json', spaceId, environmentId);
   for (const schemaFile of ['home-hero.schema.json', 'rich-text-section.schema.json', 'image-text-section.schema.json', 'featured-events-section.schema.json', 'event-countdown-section.schema.json', 'feature-card.schema.json', 'feature-cards-section.schema.json', 'image-gallery-section.schema.json', 'timeline-item.schema.json', 'timeline-section.schema.json', 'quote-section.schema.json', 'cta-banner-section.schema.json']) {
     await upsertContentType(client, schemaFile, spaceId, environmentId);
   }
@@ -579,6 +580,22 @@ async function run() {
       { id: 'message', label: 'Message', type: 'textarea', required: true, placeholder: 'Write your message' },
     ] } },
   });
+  const albumImages = [
+    'kUYy4ciGDZYmMkpaTPWsE',
+    '1j2RDUZUkhcuy3cGGGg4KS',
+    '1OTgE7anXFxY3voU4bMp7r',
+    '2JbUPO9ljxbCCszHmA6DqO',
+  ].map((id) => ({ sys: { type: 'Link', linkType: 'Asset', id } }));
+  const photoAlbums = [
+    { slug: 'melbourne-open-2026', title: 'Melbourne Open 2026', date: '2026-11-14T00:00:00.000Z', description: 'A weekend of long games, patient calculation, and the room settling into the rhythm of every round.', images: albumImages },
+    { slug: 'spring-rapid-2026', title: 'Spring Rapid', date: '2026-09-19T00:00:00.000Z', description: 'Fast decisions, familiar faces, and an afternoon that moved at tournament speed.', images: albumImages.slice(1) },
+    { slug: 'club-night-notes', title: 'Club Night Notes', date: '2026-08-07T00:00:00.000Z', description: 'Small moments from a full room: analysis after the game, clocks paused, boards reset.', images: albumImages.slice(0, 2) },
+  ];
+  for (const album of photoAlbums) {
+    await upsertEntryBySlug(client, spaceId, environmentId, 'photoAlbum', album.slug, {
+      title: { 'en-US': album.title }, slug: { 'en-US': album.slug }, date: { 'en-US': album.date }, description: { 'en-US': album.description }, images: { 'en-US': album.images },
+    });
+  }
   }
 
   if (process.env.CONTENTFUL_FINALIZE_ONLY) {
@@ -635,7 +652,7 @@ async function run() {
     footerText: { 'en-US': 'Content managed in Contentful.' },
     navigationConfig: { 'en-US': { groups: [
       { label: 'About', enabled: true, items: [{ label: 'About Me', href: '/page/about-me', enabled: true }, { label: 'FAQ', href: '/page/faq', enabled: true }] },
-      { label: 'Photos', enabled: true, items: [{ label: 'Album', href: '/#album', enabled: true }] },
+      { label: 'Photos', enabled: true, items: [{ label: 'Album', href: '/album', enabled: true }] },
       { label: 'Tournament Calendar', enabled: true, items: [{ label: 'Excel Spreadsheet', href: '/page/tournament-calendar', enabled: true }] },
       { label: 'Coaching', enabled: true, items: [{ label: 'Rates', href: '/page/rates', enabled: true }, { label: 'Coaches', href: '/page/coaches', enabled: true }] },
       { label: 'Tournaments', enabled: true, items: [{ label: 'Register', href: '/page/tournament-register', enabled: true }, { label: 'Tournament Results', href: '/page/tournament-results', enabled: true }, { label: 'DGT Links', href: '/page/dgt-links', enabled: true }] },
