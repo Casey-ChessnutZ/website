@@ -14,7 +14,9 @@ import type {
   NewsEntry,
   PersonEntry,
   PageEntry,
+  ContactFormDefinition,
 } from './types';
+import { mapContactFormItem } from '@/app/lib/contact/contact-form-definition';
 
 type ContentfulCollection<T> = {
   items: T[];
@@ -96,6 +98,11 @@ type ContentfulPageItem = {
   fields: { title?: string; slug?: string; summary?: string; content?: unknown; seoTitle?: string; seoDescription?: string };
 };
 
+type ContentfulContactFormItem = {
+  sys: { id: string };
+  fields: Record<string, unknown>;
+};
+
 type ContentfulSiteSettingsItem = {
   sys: { id: string };
   fields: {
@@ -118,6 +125,17 @@ type ContentfulSiteSettingsItem = {
         href?: string;
         style?: 'primary' | 'text';
         enabled?: boolean;
+      }>;
+      groups?: Array<{
+        label?: string;
+        href?: string;
+        enabled?: boolean;
+        items?: Array<{
+          label?: string;
+          href?: string;
+          style?: 'primary' | 'text';
+          enabled?: boolean;
+        }>;
       }>;
     };
   };
@@ -401,6 +419,11 @@ export async function getPublishedNewsBySlug(slug: string, preview = false): Pro
 export async function getPublishedPageBySlug(slug: string, preview = false): Promise<PageEntry | null> {
   const response = await contentfulFetch<ContentfulCollection<ContentfulPageItem>>('entries', { content_type: 'page', 'fields.slug': slug, limit: '1' }, contentfulTags('page', slug), { preview });
   return response?.items?.[0] ? mapPageItem(response.items[0]) : null;
+}
+
+export async function getContactForm(preview = false): Promise<ContactFormDefinition | null> {
+  const response = await contentfulFetch<ContentfulCollection<ContentfulContactFormItem>>('entries', { content_type: 'contactForm', limit: '1' }, contentfulTags('contactForm'), { preview });
+  return response?.items?.[0] ? mapContactFormItem(response.items[0]) : null;
 }
 
 export async function getPublishedPersonBySlug(slug: string, preview = false): Promise<PersonEntry | null> {

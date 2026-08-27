@@ -6,7 +6,7 @@
 
 ---
 
-**Project:** Casey ChessnutZ
+**Project:** ChessnutZ
 **Generated:** 2026-08-13 20:32:35
 **Category:** Luxury/Premium Brand
 **Design Dials:** Variance 6/10 (Balanced / Modern) | Motion 4/10 (Standard) | Density 3/10 (Spacious)

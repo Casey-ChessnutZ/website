@@ -74,7 +74,26 @@ export type SiteSettingsEntry = {
   defaultSeoDescription?: string;
   footerText?: string;
   socialLinks?: Array<{ label?: string; url?: string }>;
-  navigationConfig?: { items?: Array<{ label?: string; href?: string; style?: 'primary' | 'text'; enabled?: boolean }> };
+  navigationConfig?: NavigationConfig;
+};
+
+export type NavigationItem = {
+  label?: string;
+  href?: string;
+  style?: 'primary' | 'text';
+  enabled?: boolean;
+};
+
+export type NavigationGroupConfig = {
+  label?: string;
+  href?: string;
+  enabled?: boolean;
+  items?: NavigationItem[];
+};
+
+export type NavigationConfig = {
+  items?: NavigationItem[];
+  groups?: NavigationGroupConfig[];
 };
 
 export type EventEntry = {
@@ -138,4 +157,23 @@ export type PageEntry = {
   content?: Document;
   seoTitle?: string;
   seoDescription?: string;
+};
+
+export type ContactFieldType = 'text' | 'email' | 'tel' | 'select' | 'textarea';
+
+export type ContactFieldDefinition = {
+  id: string;
+  label: string;
+  type: ContactFieldType;
+  required: boolean;
+  placeholder?: string;
+  helpText?: string;
+  options?: string[];
+};
+
+export type ContactFormDefinition = {
+  title: string;
+  intro: string;
+  successMessage: string;
+  fields: ContactFieldDefinition[];
 };

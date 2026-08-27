@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { getPrimaryNavigation } from '../app/lib/navigation.ts';
+import { getNavigationGroups, getPrimaryNavigation } from '../app/lib/navigation.ts';
 
 test('uses the safe tournament navigation when no CMS navigation is configured', () => {
   assert.deepEqual(getPrimaryNavigation(), [
@@ -21,5 +21,24 @@ test('keeps only enabled CMS links with valid labels and paths', () => {
       { label: 'Hidden', href: '/hidden', style: 'text', enabled: false },
     ]),
     [{ href: '/events', label: 'Calendar', style: 'text' }],
+  );
+});
+
+test('normalizes enabled grouped navigation children and keeps internal routes only', () => {
+  assert.deepEqual(
+    getNavigationGroups({
+      groups: [{ label: 'About', enabled: true, items: [
+        { label: 'About Me', href: '/page/about-me', enabled: true },
+        { label: 'Ignore', href: 'https://example.com', enabled: true },
+      ] }],
+    }),
+    [{ label: 'About', items: [{ label: 'About Me', href: '/page/about-me' }] }],
+  );
+});
+
+test('converts legacy flat items into one-link groups', () => {
+  assert.deepEqual(
+    getNavigationGroups({ items: [{ label: 'News', href: '/news', enabled: true, style: 'text' }] }),
+    [{ label: 'News', href: '/news', items: [] }],
   );
 });

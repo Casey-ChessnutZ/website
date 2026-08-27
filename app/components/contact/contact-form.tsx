@@ -2,43 +2,37 @@
 
 import { useState } from 'react';
 
-import { type ContactDraft, validateContactDraft } from './contact-form-utils';
+import type { ContactFormDefinition } from '@/app/lib/contentful/types';
 
-const initialDraft: ContactDraft = { name: '', email: '', subject: '', message: '' };
-const draftStorageKey = 'chessnutz-contact-draft';
+export default function ContactForm({ definition }: { definition: ContactFormDefinition }) {
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [status, setStatus] = useState<{ type: 'error' | 'success'; message: string } | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-export default function ContactForm() {
-  const [draft, setDraft] = useState<ContactDraft>(initialDraft);
-  const [errors, setErrors] = useState<Partial<Record<keyof ContactDraft, string>>>({});
-  const [isSaved, setIsSaved] = useState(false);
-
-  const update = (field: keyof ContactDraft, value: string) => {
-    setDraft((current) => ({ ...current, [field]: value }));
-    setErrors((current) => ({ ...current, [field]: undefined }));
-    setIsSaved(false);
-  };
-
-  const submit = (event: React.FormEvent<HTMLFormElement>) => {
+  const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const nextErrors = validateContactDraft(draft);
-    setErrors(nextErrors);
-    if (Object.keys(nextErrors).length) return;
-    window.localStorage.setItem(draftStorageKey, JSON.stringify({ ...draft, savedAt: new Date().toISOString() }));
-    setIsSaved(true);
+    setIsSubmitting(true);
+    setStatus(null);
+    const response = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...values, website: '' }) }).catch(() => null);
+    const payload = response ? await response.json().catch(() => null) : null;
+    setIsSubmitting(false);
+    if (!response?.ok) {
+      setStatus({ type: 'error', message: payload?.error ?? 'We could not send your message. Please try again.' });
+      return;
+    }
+    setValues({});
+    setStatus({ type: 'success', message: payload?.successMessage ?? definition.successMessage });
   };
 
   return <form className="mt-10 grid gap-6" noValidate onSubmit={submit}>
-    <div className="grid gap-6 md:grid-cols-2">
-      <label className="grid gap-2 text-sm font-bold">Name<input className="min-h-11 border border-rule bg-paper-raised px-3 text-base font-normal outline-none transition focus:border-ink" value={draft.name} onChange={(event) => update('name', event.target.value)} aria-invalid={Boolean(errors.name)} aria-describedby={errors.name ? 'contact-name-error' : undefined} /></label>
-      <label className="grid gap-2 text-sm font-bold">Email<input className="min-h-11 border border-rule bg-paper-raised px-3 text-base font-normal outline-none transition focus:border-ink" type="email" value={draft.email} onChange={(event) => update('email', event.target.value)} aria-invalid={Boolean(errors.email)} aria-describedby={errors.email ? 'contact-email-error' : undefined} /></label>
-    </div>
-    {errors.name ? <p className="-mt-4 text-sm text-oxblood" id="contact-name-error" role="alert">{errors.name}</p> : null}
-    {errors.email ? <p className="-mt-4 text-sm text-oxblood" id="contact-email-error" role="alert">{errors.email}</p> : null}
-    <label className="grid gap-2 text-sm font-bold">Subject<input className="min-h-11 border border-rule bg-paper-raised px-3 text-base font-normal outline-none transition focus:border-ink" value={draft.subject} onChange={(event) => update('subject', event.target.value)} aria-invalid={Boolean(errors.subject)} aria-describedby={errors.subject ? 'contact-subject-error' : undefined} /></label>
-    {errors.subject ? <p className="-mt-4 text-sm text-oxblood" id="contact-subject-error" role="alert">{errors.subject}</p> : null}
-    <label className="grid gap-2 text-sm font-bold">Message<textarea className="min-h-40 border border-rule bg-paper-raised px-3 py-2 text-base font-normal outline-none transition focus:border-ink" value={draft.message} onChange={(event) => update('message', event.target.value)} aria-invalid={Boolean(errors.message)} aria-describedby={errors.message ? 'contact-message-error' : undefined} /></label>
-    {errors.message ? <p className="-mt-4 text-sm text-oxblood" id="contact-message-error" role="alert">{errors.message}</p> : null}
-    <div className="flex flex-wrap items-center gap-4"><button className="min-h-11 cursor-pointer bg-oxblood px-5 py-3 text-sm font-bold text-paper transition duration-200 ease-editorial hover:-translate-y-px hover:bg-oxblood-dark" type="submit">Save message draft</button><p className="m-0 max-w-120 text-sm text-muted">Email delivery is coming soon. Your valid message is saved only in this browser for now.</p></div>
-    {isSaved ? <p className="m-0 border-l-2 border-brass pl-3 text-sm" role="status">Your draft is saved. It has not been sent yet.</p> : null}
+    <div aria-hidden="true" className="hidden"><label>Website<input autoComplete="off" name="website" tabIndex={-1} /></label></div>
+    {definition.fields.map((field) => <label className="grid gap-2 text-sm font-bold" key={field.id}>{field.label}
+      {field.type === 'textarea' ? <textarea className="min-h-40 border border-rule bg-paper-raised px-3 py-2 text-base font-normal outline-none transition focus:border-ink" name={field.id} onChange={(event) => setValues((current) => ({ ...current, [field.id]: event.target.value }))} placeholder={field.placeholder} required={field.required} value={values[field.id] ?? ''} />
+        : field.type === 'select' ? <select className="min-h-11 border border-rule bg-paper-raised px-3 text-base font-normal outline-none transition focus:border-ink" name={field.id} onChange={(event) => setValues((current) => ({ ...current, [field.id]: event.target.value }))} required={field.required} value={values[field.id] ?? ''}><option value="">Select an option</option>{field.options?.map((option) => <option key={option} value={option}>{option}</option>)}</select>
+          : <input className="min-h-11 border border-rule bg-paper-raised px-3 text-base font-normal outline-none transition focus:border-ink" name={field.id} onChange={(event) => setValues((current) => ({ ...current, [field.id]: event.target.value }))} placeholder={field.placeholder} required={field.required} type={field.type} value={values[field.id] ?? ''} />}
+      {field.helpText ? <span className="text-sm font-normal text-muted">{field.helpText}</span> : null}
+    </label>)}
+    <button className="min-h-11 cursor-pointer bg-oxblood px-5 py-3 text-sm font-bold text-paper transition duration-200 ease-editorial hover:-translate-y-px hover:bg-oxblood-dark disabled:cursor-wait disabled:opacity-60" disabled={isSubmitting} type="submit">{isSubmitting ? 'Sending…' : 'Send message'}</button>
+    {status ? <p className={`m-0 border-l-2 pl-3 text-sm ${status.type === 'error' ? 'border-oxblood text-oxblood' : 'border-brass'}`} role="status">{status.message}</p> : null}
   </form>;
 }

@@ -337,6 +337,7 @@ async function run() {
   await upsertContentType(client, 'event.schema.json', spaceId, environmentId);
   await upsertContentType(client, 'news.schema.json', spaceId, environmentId);
   await upsertContentType(client, 'page.schema.json', spaceId, environmentId);
+  await upsertContentType(client, 'contact-form.schema.json', spaceId, environmentId);
   for (const schemaFile of ['home-hero.schema.json', 'rich-text-section.schema.json', 'image-text-section.schema.json', 'featured-events-section.schema.json', 'event-countdown-section.schema.json', 'feature-card.schema.json', 'feature-cards-section.schema.json', 'image-gallery-section.schema.json', 'timeline-item.schema.json', 'timeline-section.schema.json', 'quote-section.schema.json', 'cta-banner-section.schema.json']) {
     await upsertContentType(client, schemaFile, spaceId, environmentId);
   }
@@ -413,7 +414,7 @@ async function run() {
   } else {
   const alexMorgan = await upsertEntryBySlug(client, spaceId, environmentId, 'person', 'alex-morgan', {
     name: { 'en-US': 'Alex Morgan' }, slug: { 'en-US': 'alex-morgan' }, title: { 'en-US': 'Tournament Organiser' }, federation: { 'en-US': 'Chess Victoria' }, location: { 'en-US': 'Melbourne, Australia' },
-    about: { 'en-US': richText('Alex coordinates Casey ChessnutZ tournaments with a focus on clear player communication and a welcoming tournament experience.') },
+    about: { 'en-US': richText('Alex coordinates Chessnutz tournaments with a focus on clear player communication and a welcoming tournament experience.') },
   });
   const priyaShah = await upsertEntryBySlug(client, spaceId, environmentId, 'person', 'priya-shah', {
     name: { 'en-US': 'Priya Shah' }, slug: { 'en-US': 'priya-shah' }, title: { 'en-US': 'Chief Arbiter' }, federation: { 'en-US': 'FIDE' }, location: { 'en-US': 'Melbourne, Australia' }, fideProfileUrl: { 'en-US': 'https://ratings.fide.com/' },
@@ -429,7 +430,7 @@ async function run() {
     summary: { 'en-US': 'The previous edition of our five-round Melbourne Open weekend.' },
     description: { 'en-US': richText('A competitive weekend of classical chess that set the stage for the next Melbourne Open.') },
     eventDate: { 'en-US': '2025-11-15T10:00:00.000Z' }, locationName: { 'en-US': 'The Wheeler Centre' },
-    status: { 'en-US': 'archived' }, format: { 'en-US': 'Five-round Swiss' }, organizer: { 'en-US': 'Casey ChessnutZ' }, tags: { 'en-US': ['Classical', 'Open', 'Melbourne', 'Archive'] },
+    status: { 'en-US': 'archived' }, format: { 'en-US': 'Five-round Swiss' }, organizer: { 'en-US': 'Chessnutz' }, tags: { 'en-US': ['Classical', 'Open', 'Melbourne', 'Archive'] },
   });
 
   melbourneOpen = await upsertEntryBySlug(client, spaceId, environmentId, 'event', 'melbourne-open-2026', {
@@ -439,7 +440,7 @@ async function run() {
     eventDate: { 'en-US': '2026-11-14T10:00:00.000Z' }, locationName: { 'en-US': 'The Wheeler Centre' }, locationDetails: { 'en-US': '176 Little Lonsdale Street, Melbourne. Registration opens from 9:00am in the main foyer.' },
     status: { 'en-US': 'published' }, registrationUrl: { 'en-US': 'https://example.com/melbourne-open-2026' }, format: { 'en-US': 'Five-round Swiss' },
     schedule: { 'en-US': 'Saturday: rounds 1–3 at 10:00, 13:30 and 16:30. Sunday: rounds 4–5 at 10:00 and 14:00.' }, prizeInformation: { 'en-US': 'Prize details will be published with the final entry list.' },
-    eligibility: { 'en-US': 'Open to all rated players. Junior players require a parent or guardian contact on registration.' }, organizer: { 'en-US': 'Casey ChessnutZ' }, tags: { 'en-US': ['Classical', 'Open', 'Melbourne'] },
+    eligibility: { 'en-US': 'Open to all rated players. Junior players require a parent or guardian contact on registration.' }, organizer: { 'en-US': 'Chessnutz' }, tags: { 'en-US': ['Classical', 'Open', 'Melbourne'] },
     venueAddress: { 'en-US': '176 Little Lonsdale Street, Melbourne VIC 3000' }, venueLocation: { 'en-US': { lat: -37.8108, lon: 144.9655 } }, venueNotes: { 'en-US': 'Registration opens at the main foyer from 9:00am. The venue is a short walk from Melbourne Central station.' },
     scheduleTimeline: { 'en-US': { items: [{ time: 'Saturday · 9:00am', title: 'Registration', detail: 'Collect your player details at the main foyer.' }, { time: 'Saturday · 10:00am', title: 'Round 1', detail: 'Boards close five minutes before the round.' }, { time: 'Saturday · 1:30pm', title: 'Round 2' }, { time: 'Saturday · 4:30pm', title: 'Round 3' }, { time: 'Sunday · 10:00am', title: 'Round 4' }, { time: 'Sunday · 2:00pm', title: 'Round 5 & presentations', detail: 'Prize presentation follows the final round.' }] } },
     officials: { 'en-US': [{ sys: { type: 'Link', linkType: 'Entry', id: alexMorgan.sys.id } }, { sys: { type: 'Link', linkType: 'Entry', id: priyaShah.sys.id } }, { sys: { type: 'Link', linkType: 'Entry', id: danielWong.sys.id } }] },
@@ -449,13 +450,13 @@ async function run() {
   springRapid = await upsertEntryBySlug(client, spaceId, environmentId, 'event', 'spring-rapid-2026', {
     title: { 'en-US': 'Spring Rapid 2026' }, slug: { 'en-US': 'spring-rapid-2026' }, summary: { 'en-US': 'Six rapid rounds, one bright Saturday, and a friendly competitive field.' },
     description: { 'en-US': richText('A welcoming rapid event for players looking for quality games in a single afternoon.') }, eventDate: { 'en-US': '2026-09-19T11:00:00.000Z' },
-    locationName: { 'en-US': 'Fitzroy Town Hall' }, status: { 'en-US': 'published' }, format: { 'en-US': '15+10 Rapid Swiss' }, organizer: { 'en-US': 'Casey ChessnutZ' }, tags: { 'en-US': ['Rapid', 'Melbourne'] },
+    locationName: { 'en-US': 'Fitzroy Town Hall' }, status: { 'en-US': 'published' }, format: { 'en-US': '15+10 Rapid Swiss' }, organizer: { 'en-US': 'Chessnutz' }, tags: { 'en-US': ['Rapid', 'Melbourne'] },
   });
 
   const summerBlitz = await upsertEntryBySlug(client, spaceId, environmentId, 'event', 'summer-blitz-2026', {
     title: { 'en-US': 'Summer Blitz 2026' }, slug: { 'en-US': 'summer-blitz-2026' }, summary: { 'en-US': 'An evening of quick decisions, sharp tactics, and relaxed summer chess.' },
     description: { 'en-US': richText('Bring your best practical chess for a social evening of blitz and post-game analysis.') }, eventDate: { 'en-US': '2026-12-12T18:00:00.000Z' },
-    locationName: { 'en-US': 'Docklands Chess Club' }, status: { 'en-US': 'published' }, format: { 'en-US': '3+2 Blitz Swiss' }, organizer: { 'en-US': 'Casey ChessnutZ' }, tags: { 'en-US': ['Blitz', 'Evening'] },
+    locationName: { 'en-US': 'Docklands Chess Club' }, status: { 'en-US': 'published' }, format: { 'en-US': '3+2 Blitz Swiss' }, organizer: { 'en-US': 'Chessnutz' }, tags: { 'en-US': ['Blitz', 'Evening'] },
   });
 
   // Major event example: realistic test data, not extracted from the protected pairing site.
@@ -466,7 +467,7 @@ async function run() {
     description: { 'en-US': richText('A serious classical division with a focused competitive field. This entry is sample content for testing major-event divisions.') },
     eventDate: { 'en-US': '2026-10-03T00:00:00.000Z' }, locationName: { 'en-US': 'Hobsons Bay Chess Club' }, locationDetails: { 'en-US': 'Sample venue details for the Koshnitsky Cup test event.' },
     status: { 'en-US': 'published' }, registrationUrl: { 'en-US': 'https://example.com/koshnitsky-cup-2026' }, pairingUrl: { 'en-US': koshnitskyPairingUrl }, format: { 'en-US': 'Five-round Classical Swiss' },
-    schedule: { 'en-US': 'Saturday: rounds 1–3. Sunday: rounds 4–5.' }, eligibility: { 'en-US': 'Open to experienced rated players.' }, organizer: { 'en-US': 'Casey ChessnutZ' }, tags: { 'en-US': ['Koshnitsky Cup', 'Major', 'Classical'] },
+    schedule: { 'en-US': 'Saturday: rounds 1–3. Sunday: rounds 4–5.' }, eligibility: { 'en-US': 'Open to experienced rated players.' }, organizer: { 'en-US': 'Chessnutz' }, tags: { 'en-US': ['Koshnitsky Cup', 'Major', 'Classical'] },
   });
 
   const koshnitskyMinor = await upsertEntryBySlug(client, spaceId, environmentId, 'event', '2026-koshnitsky-cup-minor', {
@@ -475,7 +476,7 @@ async function run() {
     description: { 'en-US': richText('A welcoming division with plenty of tournament experience and clear progression opportunities. This entry is sample content for testing major-event divisions.') },
     eventDate: { 'en-US': '2026-10-03T00:00:00.000Z' }, locationName: { 'en-US': 'Hobsons Bay Chess Club' }, locationDetails: { 'en-US': 'Sample venue details for the Koshnitsky Cup test event.' },
     status: { 'en-US': 'published' }, registrationUrl: { 'en-US': 'https://example.com/koshnitsky-cup-2026' }, pairingUrl: { 'en-US': koshnitskyPairingUrl }, format: { 'en-US': 'Five-round Classical Swiss' },
-    schedule: { 'en-US': 'Saturday: rounds 1–3. Sunday: rounds 4–5.' }, eligibility: { 'en-US': 'Open to developing club players.' }, organizer: { 'en-US': 'Casey ChessnutZ' }, tags: { 'en-US': ['Koshnitsky Cup', 'Minor', 'Classical'] },
+    schedule: { 'en-US': 'Saturday: rounds 1–3. Sunday: rounds 4–5.' }, eligibility: { 'en-US': 'Open to developing club players.' }, organizer: { 'en-US': 'Chessnutz' }, tags: { 'en-US': ['Koshnitsky Cup', 'Minor', 'Classical'] },
   });
 
   const koshnitskyRookies = await upsertEntryBySlug(client, spaceId, environmentId, 'event', '2026-koshnitsky-cup-rookies', {
@@ -484,7 +485,7 @@ async function run() {
     description: { 'en-US': richText('A friendly entry point for newer tournament players, with a clear structure and space to learn. This entry is sample content for testing major-event divisions.') },
     eventDate: { 'en-US': '2026-10-03T00:00:00.000Z' }, locationName: { 'en-US': 'Hobsons Bay Chess Club' }, locationDetails: { 'en-US': 'Sample venue details for the Koshnitsky Cup test event.' },
     status: { 'en-US': 'published' }, registrationUrl: { 'en-US': 'https://example.com/koshnitsky-cup-2026' }, pairingUrl: { 'en-US': koshnitskyPairingUrl }, format: { 'en-US': 'Five-round Junior Swiss' },
-    schedule: { 'en-US': 'Saturday: rounds 1–3. Sunday: rounds 4–5.' }, eligibility: { 'en-US': 'Open to rookies and junior players.' }, organizer: { 'en-US': 'Casey ChessnutZ' }, tags: { 'en-US': ['Koshnitsky Cup', 'Rookies', 'Juniors'] },
+    schedule: { 'en-US': 'Saturday: rounds 1–3. Sunday: rounds 4–5.' }, eligibility: { 'en-US': 'Open to rookies and junior players.' }, organizer: { 'en-US': 'Chessnutz' }, tags: { 'en-US': ['Koshnitsky Cup', 'Rookies', 'Juniors'] },
   });
 
   koshnitskyCup = await upsertEntryBySlug(client, spaceId, environmentId, 'event', '2026-koshnitsky-cup', {
@@ -493,7 +494,7 @@ async function run() {
     description: { 'en-US': richText('Choose the division that matches your experience, then open its event page for the full schedule, eligibility, registration, and pairings link.') },
     eventDate: { 'en-US': '2026-10-03T00:00:00.000Z' }, locationName: { 'en-US': 'Hobsons Bay Chess Club' }, locationDetails: { 'en-US': 'Sample venue details for the Koshnitsky Cup test event.' },
     status: { 'en-US': 'published' }, registrationUrl: { 'en-US': 'https://example.com/koshnitsky-cup-2026' }, pairingUrl: { 'en-US': koshnitskyPairingUrl }, format: { 'en-US': 'Multi-division tournament' },
-    schedule: { 'en-US': 'Saturday and Sunday, with division-specific pairings published before every round.' }, eligibility: { 'en-US': 'See the individual division pages for eligibility.' }, organizer: { 'en-US': 'Casey ChessnutZ' }, tags: { 'en-US': ['Koshnitsky Cup', 'Major Event'] },
+    schedule: { 'en-US': 'Saturday and Sunday, with division-specific pairings published before every round.' }, eligibility: { 'en-US': 'See the individual division pages for eligibility.' }, organizer: { 'en-US': 'Chessnutz' }, tags: { 'en-US': ['Koshnitsky Cup', 'Major Event'] },
     divisions: { 'en-US': [
       { sys: { type: 'Link', linkType: 'Entry', id: koshnitskyMajor.sys.id } },
       { sys: { type: 'Link', linkType: 'Entry', id: koshnitskyMinor.sys.id } },
@@ -539,13 +540,31 @@ async function run() {
     });
   }
   const pages = [
+    { slug: 'about-me', title: 'About Me', summary: 'Meet the organiser behind Chessnutz.', content: 'Chessnutz creates welcoming, well-run chess events and coaching opportunities for players across Melbourne.' },
     { slug: 'terms-and-conditions', title: 'Terms and Conditions', summary: 'The conditions that apply when you register for and attend our events.', content: 'These terms explain event registrations, conduct, refunds, and our responsibilities to players.' },
-    { slug: 'privacy', title: 'Privacy', summary: 'How Casey ChessnutZ handles the information you share with us.', content: 'We use your contact details only to administer events, provide important updates, and improve the tournament experience.' },
+    { slug: 'privacy', title: 'Privacy', summary: 'How Chessnutz handles the information you share with us.', content: 'We use your contact details only to administer events, provide important updates, and improve the tournament experience.' },
     { slug: 'faq', title: 'Frequently Asked Questions', summary: 'Practical answers for players before tournament day.', content: 'Check the relevant event page for registration deadlines, venue details, pairing information, and eligibility.' },
+    { slug: 'tournament-calendar', title: 'Tournament Calendar', summary: 'A central view of upcoming tournament dates.', content: 'The Excel spreadsheet link will be added here when the live schedule is ready.' },
+    { slug: 'rates', title: 'Coaching Rates', summary: 'Clear coaching options for every stage of your chess journey.', content: 'Sample rates are available here for now. Update this page in Contentful with your confirmed coaching packages.' },
+    { slug: 'coaches', title: 'Coaches', summary: 'Meet the people who help players improve.', content: 'Add coach biographies, playing experience, and availability here.' },
+    { slug: 'tournament-register', title: 'Tournament Registration', summary: 'How to register for upcoming Chessnutz events.', content: 'Choose an event from the tournament calendar and follow its registration instructions.' },
+    { slug: 'tournament-results', title: 'Tournament Results', summary: 'Results from recent Chessnutz tournaments.', content: 'Results will be published here after each event.' },
+    { slug: 'dgt-links', title: 'DGT Links', summary: 'Live boards and tournament information.', content: 'Add official DGT live-board and pairing links here as each tournament approaches.' },
   ];
   for (const page of pages) {
     await upsertEntryBySlug(client, spaceId, environmentId, 'page', page.slug, { title: { 'en-US': page.title }, slug: { 'en-US': page.slug }, summary: { 'en-US': page.summary }, content: { 'en-US': richText(page.content) } });
   }
+  await upsertSingleEntry(client, spaceId, environmentId, 'contactForm', {
+    title: { 'en-US': 'Start a conversation.' },
+    intro: { 'en-US': 'Ask about tournament entries, accessibility, partnerships, or coaching.' },
+    successMessage: { 'en-US': 'Thanks — your message has been sent.' },
+    fields: { 'en-US': [
+      { id: 'name', label: 'Name', type: 'text', required: true, placeholder: 'Your name' },
+      { id: 'email', label: 'Email', type: 'email', required: true, placeholder: 'you@example.com' },
+      { id: 'subject', label: 'Subject', type: 'text', required: true, placeholder: 'How can we help?' },
+      { id: 'message', label: 'Message', type: 'textarea', required: true, placeholder: 'Write your message' },
+    ] },
+  });
   }
 
   if (process.env.CONTENTFUL_FINALIZE_ONLY) {
@@ -556,7 +575,7 @@ async function run() {
 
   // 4) Seed focused, editor-friendly homepage sections
   const homeHero = await upsertEntryBySlug(client, spaceId, environmentId, 'homeHero', 'home-hero', {
-    title: { 'en-US': 'Find your next board' }, eyebrow: { 'en-US': 'Casey ChessnutZ' }, body: { 'en-US': 'A considered calendar of rated tournaments, club events, and good games across Melbourne.' }, primaryCtaLabel: { 'en-US': 'Explore tournaments' }, primaryCtaUrl: { 'en-US': '/events' }, secondaryCtaLabel: { 'en-US': 'Meet the team' }, secondaryCtaUrl: { 'en-US': '/team' },
+    title: { 'en-US': 'Find your next board' }, eyebrow: { 'en-US': 'Chessnutz' }, body: { 'en-US': 'A considered calendar of rated tournaments, club events, and good games across Melbourne.' }, primaryCtaLabel: { 'en-US': 'Explore tournaments' }, primaryCtaUrl: { 'en-US': '/events' }, secondaryCtaLabel: { 'en-US': 'Meet the team' }, secondaryCtaUrl: { 'en-US': '/team' },
   });
   const homeIntro = await upsertEntryBySlug(client, spaceId, environmentId, 'richTextSection', 'home-intro', {
     title: { 'en-US': 'A considered calendar' }, eyebrow: { 'en-US': 'Made for players' }, body: { 'en-US': richText('Whether you are returning to tournament chess or chasing your next title, every event has the details you need before you sit at the board.') },
@@ -594,21 +613,20 @@ async function run() {
   });
 
   await upsertSingleEntry(client, spaceId, environmentId, 'siteSettings', {
-    siteName: { 'en-US': 'Casey ChessnutZ' },
-    defaultSeoTitle: { 'en-US': 'Casey ChessnutZ | Tournament Listings' },
+    siteName: { 'en-US': 'Chessnutz' },
+    defaultSeoTitle: { 'en-US': 'Chessnutz | Tournament Listings' },
     defaultSeoDescription: {
       'en-US': 'Discover upcoming chess events and keep your homepage fresh with Contentful-powered sections.',
     },
     footerText: { 'en-US': 'Content managed in Contentful.' },
-    navigationConfig: {
-      'en-US': { items: [
-        { label: 'Tournaments', href: '/events', style: 'text', enabled: true },
-        { label: 'News', href: '/news', style: 'text', enabled: true },
-        { label: 'Our Team', href: '/team', style: 'text', enabled: true },
-        { label: 'About', href: '/#about', style: 'text', enabled: true },
-        { label: 'Find an event', href: '/events', style: 'primary', enabled: true },
-      ] },
-    },
+    navigationConfig: { 'en-US': { groups: [
+      { label: 'About', enabled: true, items: [{ label: 'About Me', href: '/page/about-me', enabled: true }, { label: 'FAQ', href: '/page/faq', enabled: true }] },
+      { label: 'Photos', enabled: true, items: [{ label: 'Album', href: '/#album', enabled: true }] },
+      { label: 'Tournament Calendar', enabled: true, items: [{ label: 'Excel Spreadsheet', href: '/page/tournament-calendar', enabled: true }] },
+      { label: 'Coaching', enabled: true, items: [{ label: 'Rates', href: '/page/rates', enabled: true }, { label: 'Coaches', href: '/page/coaches', enabled: true }] },
+      { label: 'Tournaments', enabled: true, items: [{ label: 'Register', href: '/page/tournament-register', enabled: true }, { label: 'Tournament Results', href: '/page/tournament-results', enabled: true }, { label: 'DGT Links', href: '/page/dgt-links', enabled: true }] },
+      { label: 'Contact Us', enabled: true, items: [{ label: 'Form', href: '/contact', enabled: true }, { label: 'Newsletter', href: '/news', enabled: true }] },
+    ] } },
   });
 
   await deleteContentTypeAndEntries(client, 'sectionBlock', spaceId, environmentId);

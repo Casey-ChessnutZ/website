@@ -1,6 +1,6 @@
 # Homepage Page Overrides
 
-> **PROJECT:** Casey ChessnutZ
+> **PROJECT:** Chessnutz
 > **Generated:** 2026-08-13 20:32:35
 > **Page Type:** Landing / Marketing
 

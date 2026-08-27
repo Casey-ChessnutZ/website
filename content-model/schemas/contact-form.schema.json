@@ -1,0 +1,12 @@
+{
+  "sys": { "id": "contactForm", "displayField": "title" },
+  "name": "Contact Form",
+  "description": "Editor-managed public contact form definition",
+  "displayField": "title",
+  "fields": [
+    { "id": "title", "name": "Title", "type": "Symbol", "required": true, "localized": false },
+    { "id": "intro", "name": "Introduction", "type": "Text", "required": true, "localized": false },
+    { "id": "successMessage", "name": "Success message", "type": "Text", "required": true, "localized": false },
+    { "id": "fields", "name": "Fields", "type": "Array", "required": true, "localized": false, "items": { "type": "Object" } }
+  ]
+}
