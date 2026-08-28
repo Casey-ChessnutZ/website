@@ -50,6 +50,7 @@ test('resolves supported Contentful entry types to their public routes', () => {
   assert.equal(getContentfulPreviewPath('photoAlbum', 'spring-rapid-2026'), '/album/spring-rapid-2026');
   assert.equal(getContentfulPreviewPath('person', 'casey-chessnut'), '/team/casey-chessnut');
   assert.equal(getContentfulPreviewPath('page', 'privacy'), '/page/privacy');
+  assert.equal(getContentfulPreviewPath('landingPage', '2026-calendar'), '/2026-calendar');
   assert.equal(getContentfulPreviewPath('homeHero'), '/');
   assert.equal(getContentfulPreviewPath('event', undefined), null);
   assert.equal(getContentfulPreviewPath('unknown', 'anything'), null);

@@ -28,7 +28,7 @@
       "items": {
         "type": "Link",
         "linkType": "Entry",
-        "validations": [{ "linkContentType": ["homeHero", "richTextSection", "imageTextSection", "featuredEventsSection", "eventCountdownSection", "featureCardsSection", "imageGallerySection", "timelineSection", "quoteSection", "ctaBannerSection"] }]
+        "validations": [{ "linkContentType": ["homeHero", "richTextSection", "imageTextSection", "featuredEventsSection", "eventCountdownSection", "featureCardsSection", "imageGallerySection", "mediaEmbeded", "timelineSection", "quoteSection", "ctaBannerSection"] }]
       },
       "required": false,
       "localized": false

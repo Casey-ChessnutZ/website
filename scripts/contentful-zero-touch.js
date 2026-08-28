@@ -352,6 +352,7 @@ async function run() {
   await upsertContentType(client, 'page.schema.json', spaceId, environmentId);
   await upsertContentType(client, 'contact-form.schema.json', spaceId, environmentId);
   await upsertContentType(client, 'photo-album.schema.json', spaceId, environmentId);
+  await upsertContentType(client, 'media-embeded.schema.json', spaceId, environmentId);
   for (const schemaFile of ['home-hero.schema.json', 'rich-text-section.schema.json', 'image-text-section.schema.json', 'featured-events-section.schema.json', 'event-countdown-section.schema.json', 'feature-card.schema.json', 'feature-cards-section.schema.json', 'image-gallery-section.schema.json', 'timeline-item.schema.json', 'timeline-section.schema.json', 'quote-section.schema.json', 'cta-banner-section.schema.json']) {
     await upsertContentType(client, schemaFile, spaceId, environmentId);
   }
@@ -596,6 +597,13 @@ async function run() {
       title: { 'en-US': album.title }, slug: { 'en-US': album.slug }, date: { 'en-US': album.date }, description: { 'en-US': album.description }, images: { 'en-US': album.images },
     });
   }
+  const calendarEmbedUrl = 'https://docs.google.com/spreadsheets/u/0/d/e/2PACX-1vRIr-eFPQCMvn-TbOfLNzHheAVduNUKX2wOTsYjJOM8zf_uhqe3B3H8Z01bofnCPg/pubhtml/sheet?headers=false&gid=1166263116';
+  const calendarEmbed = await upsertEntryBySlug(client, spaceId, environmentId, 'mediaEmbeded', '2026-tournament-calendar', {
+    title: { 'en-US': '2026 Tournament Calendar' }, slug: { 'en-US': '2026-tournament-calendar' }, description: { 'en-US': 'Browse the current 2026 tournament schedule.' }, url: { 'en-US': calendarEmbedUrl }, code: { 'en-US': `<iframe src="${calendarEmbedUrl}"></iframe>` }, width: { 'en-US': 1280 }, height: { 'en-US': 760 },
+  });
+  await upsertEntryBySlug(client, spaceId, environmentId, 'landingPage', '2026-calendar', {
+    title: { 'en-US': '2026 Tournament Calendar' }, slug: { 'en-US': '2026-calendar' }, sections: { 'en-US': [{ sys: { type: 'Link', linkType: 'Entry', id: calendarEmbed.sys.id } }] }, seoTitle: { 'en-US': '2026 Tournament Calendar | Chessnutz' }, seoDescription: { 'en-US': 'Browse the 2026 Chessnutz tournament calendar.' },
+  });
   }
 
   if (process.env.CONTENTFUL_FINALIZE_ONLY) {
@@ -653,7 +661,7 @@ async function run() {
     navigationConfig: { 'en-US': { groups: [
       { label: 'About', enabled: true, items: [{ label: 'About Me', href: '/page/about-me', enabled: true }, { label: 'FAQ', href: '/page/faq', enabled: true }] },
       { label: 'Photos', enabled: true, items: [{ label: 'Album', href: '/album', enabled: true }] },
-      { label: 'Tournament Calendar', enabled: true, items: [{ label: 'Excel Spreadsheet', href: '/page/tournament-calendar', enabled: true }] },
+      { label: 'Tournament Calendar', enabled: true, items: [{ label: '2026 Calendar', href: '/2026-calendar', enabled: true }] },
       { label: 'Coaching', enabled: true, items: [{ label: 'Rates', href: '/page/rates', enabled: true }, { label: 'Coaches', href: '/page/coaches', enabled: true }] },
       { label: 'Tournaments', enabled: true, items: [{ label: 'Register', href: '/page/tournament-register', enabled: true }, { label: 'Tournament Results', href: '/page/tournament-results', enabled: true }, { label: 'DGT Links', href: '/page/dgt-links', enabled: true }] },
       { label: 'Contact Us', enabled: true, items: [{ label: 'Form', href: '/contact', enabled: true }, { label: 'Newsletter', href: '/news', enabled: true }] },

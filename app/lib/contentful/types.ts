@@ -40,7 +40,7 @@ export type ContentfulEntry<TFields> = {
 
 export type LandingPageBlockType =
   | 'homeHero' | 'richTextSection' | 'imageTextSection' | 'featuredEventsSection'
-  | 'eventCountdownSection' | 'featureCardsSection' | 'imageGallerySection'
+  | 'eventCountdownSection' | 'featureCardsSection' | 'imageGallerySection' | 'mediaEmbeded'
   | 'timelineSection' | 'quoteSection' | 'ctaBannerSection';
 
 export type LandingPageBlock = {

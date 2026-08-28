@@ -1,4 +1,4 @@
-export type ContentfulCacheType = 'event' | 'news' | 'page' | 'photoAlbum' | 'landingPage' | 'siteSettings' | 'contactForm' | 'person' | 'homeHero' | 'richTextSection' | 'imageTextSection' | 'featuredEventsSection' | 'eventCountdownSection' | 'featureCardsSection' | 'imageGallerySection' | 'timelineSection' | 'quoteSection' | 'ctaBannerSection' | 'featureCard' | 'timelineItem';
+export type ContentfulCacheType = 'event' | 'news' | 'page' | 'photoAlbum' | 'landingPage' | 'siteSettings' | 'contactForm' | 'person' | 'homeHero' | 'richTextSection' | 'imageTextSection' | 'featuredEventsSection' | 'eventCountdownSection' | 'featureCardsSection' | 'imageGallerySection' | 'mediaEmbeded' | 'timelineSection' | 'quoteSection' | 'ctaBannerSection' | 'featureCard' | 'timelineItem';
 
 export type ContentfulRevalidationPath = {
   path: string;
@@ -23,7 +23,7 @@ type ContentfulWebhookPayload = {
   };
 };
 
-const supportedTypes = new Set<ContentfulCacheType>(['event', 'news', 'page', 'photoAlbum', 'landingPage', 'siteSettings', 'contactForm', 'person', 'homeHero', 'richTextSection', 'imageTextSection', 'featuredEventsSection', 'eventCountdownSection', 'featureCardsSection', 'imageGallerySection', 'timelineSection', 'quoteSection', 'ctaBannerSection', 'featureCard', 'timelineItem']);
+const supportedTypes = new Set<ContentfulCacheType>(['event', 'news', 'page', 'photoAlbum', 'landingPage', 'siteSettings', 'contactForm', 'person', 'homeHero', 'richTextSection', 'imageTextSection', 'featuredEventsSection', 'eventCountdownSection', 'featureCardsSection', 'imageGallerySection', 'mediaEmbeded', 'timelineSection', 'quoteSection', 'ctaBannerSection', 'featureCard', 'timelineItem']);
 
 export function contentfulTags(type: ContentfulCacheType, slug?: string): string[] {
   return [`contentful:${type}`, ...(slug ? [`contentful:${type}:${slug}`] : [])];
@@ -99,6 +99,8 @@ export function createContentfulRevalidationPlan(payload: ContentfulWebhookPaylo
       ],
     };
   }
+
+  if (type === 'mediaEmbeded') return { tags: contentfulTags(type, slug), paths: [{ path: '/2026-calendar', type: 'page' }] };
 
   if (type === 'landingPage' || ['homeHero', 'richTextSection', 'imageTextSection', 'featuredEventsSection', 'eventCountdownSection', 'featureCardsSection', 'imageGallerySection', 'timelineSection', 'quoteSection', 'ctaBannerSection', 'featureCard', 'timelineItem'].includes(type)) {
     return { tags: contentfulTags(type, slug), paths: [{ path: '/', type: 'page' }] };

@@ -1,6 +1,6 @@
 const PREVIEW_ORIGIN = 'https://preview.local';
 const HOMEPAGE_CONTENT_TYPES = new Set([
-  'landingPage', 'siteSettings', 'homeHero', 'richTextSection', 'imageTextSection',
+  'siteSettings', 'homeHero', 'richTextSection', 'imageTextSection',
   'featuredEventsSection', 'eventCountdownSection', 'featureCardsSection',
   'imageGallerySection', 'timelineSection', 'quoteSection', 'ctaBannerSection',
   'featureCard', 'timelineItem',
@@ -15,6 +15,7 @@ function isRouteSlug(slug: string | undefined): slug is string {
 }
 
 export function getContentfulPreviewPath(contentType: string | undefined, slug: string | undefined): string | null {
+  if (contentType === 'landingPage') return slug === 'home' ? '/' : isRouteSlug(slug) ? `/${encodeURIComponent(slug)}` : null;
   if (HOMEPAGE_CONTENT_TYPES.has(contentType ?? '')) return '/';
   if (!isRouteSlug(slug)) return null;
 

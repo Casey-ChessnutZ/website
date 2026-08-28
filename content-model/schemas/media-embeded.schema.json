@@ -1,0 +1,15 @@
+{
+  "sys": { "id": "mediaEmbeded", "displayField": "title" },
+  "name": "Media Embedded",
+  "description": "A responsive, allow-listed embedded YouTube, Google Map, or Google Sheet",
+  "displayField": "title",
+  "fields": [
+    { "id": "title", "name": "Title", "type": "Symbol", "required": true, "localized": false },
+    { "id": "slug", "name": "Slug", "type": "Symbol", "required": true, "localized": false },
+    { "id": "description", "name": "Description", "type": "Text", "required": false, "localized": false },
+    { "id": "url", "name": "Embed URL", "type": "Symbol", "required": true, "localized": false },
+    { "id": "code", "name": "Original iframe code", "type": "Text", "required": false, "localized": false },
+    { "id": "width", "name": "Maximum width", "type": "Integer", "required": false, "localized": false },
+    { "id": "height", "name": "Height", "type": "Integer", "required": false, "localized": false }
+  ]
+}

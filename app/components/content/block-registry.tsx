@@ -9,6 +9,7 @@ import CountdownBlock from './countdown-block';
 import ImageBlock from './image-block';
 import CardBlock from './card-block';
 import QuoteSection from './quote-section';
+import MediaEmbedBlock from './media-embed-block';
 
 export default function RenderBlock({ block }: { block: LandingPageBlock }) {
   switch (block.type) {
@@ -20,6 +21,8 @@ export default function RenderBlock({ block }: { block: LandingPageBlock }) {
       return <EditorialTextBlock block={block} />;
     case 'imageGallerySection':
       return <ImageGalleryBlock block={block} />;
+    case 'mediaEmbeded':
+      return <MediaEmbedBlock block={block} />;
     case 'timelineSection':
       return <TimelineBlock block={block} />;
     case 'ctaBannerSection':

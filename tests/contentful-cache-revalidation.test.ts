@@ -53,6 +53,13 @@ test('revalidates the photo album index and detail route', () => {
   );
 });
 
+test('revalidates the 2026 calendar when its embed changes', () => {
+  assert.deepEqual(
+    createContentfulRevalidationPlan({ sys: { contentType: { sys: { id: 'mediaEmbeded' } } } }),
+    { tags: ['contentful:mediaEmbeded'], paths: [{ path: '/2026-calendar', type: 'page' }] },
+  );
+});
+
 test('revalidates team routes when a person profile changes', () => {
   assert.deepEqual(
     createContentfulRevalidationPlan({

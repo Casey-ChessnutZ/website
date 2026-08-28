@@ -8,7 +8,7 @@ const readSchema = (name: string) => JSON.parse(fs.readFileSync(schemaPath(name)
 
 const homepageSectionContentTypes = [
   'homeHero', 'richTextSection', 'imageTextSection', 'featuredEventsSection', 'eventCountdownSection',
-  'featureCardsSection', 'imageGallerySection', 'timelineSection', 'quoteSection', 'ctaBannerSection',
+  'featureCardsSection', 'imageGallerySection', 'mediaEmbeded', 'timelineSection', 'quoteSection', 'ctaBannerSection',
 ];
 
 test('landing page accepts only focused homepage section content types', () => {

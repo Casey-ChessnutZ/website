@@ -226,7 +226,7 @@ export function mapLandingPageItem(item: ContentfulLandingPageItem, includes: Co
       }
 
       const contentType = match.sys.contentType?.sys?.id;
-      if (!contentType || !['homeHero', 'richTextSection', 'imageTextSection', 'featuredEventsSection', 'eventCountdownSection', 'featureCardsSection', 'imageGallerySection', 'timelineSection', 'quoteSection', 'ctaBannerSection'].includes(contentType)) return null;
+      if (!contentType || !['homeHero', 'richTextSection', 'imageTextSection', 'featuredEventsSection', 'eventCountdownSection', 'featureCardsSection', 'imageGallerySection', 'mediaEmbeded', 'timelineSection', 'quoteSection', 'ctaBannerSection'].includes(contentType)) return null;
       const raw = match.fields ?? {};
       const fields = {
         ...raw,
@@ -239,6 +239,9 @@ export function mapLandingPageItem(item: ContentfulLandingPageItem, includes: Co
         items: resolveLinkedEntries<{ fields: Record<string, unknown> }>(raw.items as ContentfulReference[] | undefined, entryMap).map((timelineItem) => ({ title: timelineItem.fields.title, description: timelineItem.fields.body, date: timelineItem.fields.date })),
         ctaText: raw.ctaLabel ?? raw.primaryCtaLabel,
         ctaUrl: raw.ctaUrl ?? raw.primaryCtaUrl,
+        url: typeof raw.url === 'string' ? raw.url : undefined,
+        width: typeof raw.width === 'number' ? raw.width : undefined,
+        height: typeof raw.height === 'number' ? raw.height : undefined,
       };
       return {
         sys: { id: match.sys.id },
@@ -376,6 +379,13 @@ export async function getPublishedLandingPage(preview = false): Promise<LandingP
   }
 
   return mapLandingPageItem(item, response?.includes);
+}
+
+export async function getPublishedLandingPageBySlug(slug: string, preview = false): Promise<LandingPageEntry | null> {
+  const response = await contentfulFetch<ContentfulCollection<ContentfulLandingPageItem>>('entries', {
+    content_type: 'landingPage', 'fields.slug': slug, order: '-sys.updatedAt', include: '10', limit: '1',
+  }, [...contentfulTags('landingPage', slug), ...contentfulTags('mediaEmbeded')], { preview });
+  return response?.items?.[0] ? mapLandingPageItem(response.items[0], response.includes) : null;
 }
 
 export async function getPublishedEventBySlug(slug: string, preview = false): Promise<EventEntry | null> {
