@@ -14,6 +14,11 @@ const fallbackNavigation: PrimaryNavigationItem[] = [
   { href: '/events', label: 'Find an event', style: 'primary' },
 ];
 
+const fallbackFooterNavigation: NavigationGroup[] = [
+  { label: 'Explore', items: [{ href: '/events', label: 'Tournaments' }, { href: '/news', label: 'News' }, { href: '/#about', label: 'About' }] },
+  { label: 'Information', items: [{ href: '/contact', label: 'Contact' }, { href: '/events', label: 'Event calendar' }] },
+];
+
 export function getPrimaryNavigation(items?: NavigationItem[]): PrimaryNavigationItem[] {
   if (!items?.length) return fallbackNavigation;
 
@@ -22,7 +27,7 @@ export function getPrimaryNavigation(items?: NavigationItem[]): PrimaryNavigatio
     .map((item) => ({ href: item.href as string, label: item.label!.trim(), style: item.style === 'primary' ? 'primary' : 'text' }));
 }
 
-export function getNavigationGroups(config?: NavigationConfig): NavigationGroup[] {
+function getConfiguredNavigationGroups(config?: NavigationConfig): NavigationGroup[] {
   const groups = config?.groups?.flatMap((group) => {
     if (!group.enabled || !group.label?.trim()) return [];
 
@@ -37,7 +42,19 @@ export function getNavigationGroups(config?: NavigationConfig): NavigationGroup[
       : [];
   });
 
-  return groups?.length
+  return groups ?? [];
+}
+
+export function getNavigationGroups(config?: NavigationConfig): NavigationGroup[] {
+  const groups = getConfiguredNavigationGroups(config);
+
+  return groups.length
     ? groups
     : getPrimaryNavigation(config?.items).map(({ label, href }) => ({ label, href, items: [] }));
+}
+
+export function getFooterNavigationGroups(config?: NavigationConfig): NavigationGroup[] {
+  const groups = getConfiguredNavigationGroups(config);
+
+  return groups.length ? groups : fallbackFooterNavigation;
 }

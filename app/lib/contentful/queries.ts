@@ -151,6 +151,25 @@ type ContentfulSiteSettingsItem = {
         }>;
       }>;
     };
+    footerNavigationConfig?: {
+      items?: Array<{
+        label?: string;
+        href?: string;
+        style?: 'primary' | 'text';
+        enabled?: boolean;
+      }>;
+      groups?: Array<{
+        label?: string;
+        href?: string;
+        enabled?: boolean;
+        items?: Array<{
+          label?: string;
+          href?: string;
+          style?: 'primary' | 'text';
+          enabled?: boolean;
+        }>;
+      }>;
+    };
   };
 };
 
@@ -360,6 +379,7 @@ function mapSiteSettingsItem(item: ContentfulSiteSettingsItem): SiteSettingsEntr
     footerText: item.fields.footerText,
     socialLinks,
     navigationConfig: item.fields.navigationConfig,
+    footerNavigationConfig: item.fields.footerNavigationConfig,
   };
 }
 

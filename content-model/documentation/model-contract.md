@@ -12,6 +12,6 @@ Image Gallery, Timeline, Quote, and CTA Banner. Each entry exposes only the fiel
 needed for its layout; no JSON section configuration is used.
 
 `siteSettings` provides global branding, footer text, SEO defaults, and optional
-`navigationConfig`. Its `items` array contains navigation objects with a `label`, internal `href`, `style`
+`navigationConfig` for the header and `footerNavigationConfig` for footer columns. Their `items` arrays contain navigation objects with a `label`, internal `href`, `style`
 (`text` or `primary`), and `enabled` flag. The frontend retains a minimal tournament
 navigation fallback when no valid navigation items are published.

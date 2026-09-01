@@ -191,6 +191,41 @@ async function configureContactFormEditor(client, spaceId, environmentId) {
   console.log('Configured Contact Form JSON editor.');
 }
 
+async function ensureFooterNavigationField(client, spaceId, environmentId) {
+  const contentTypeId = 'siteSettings';
+  const schemaPath = path.join(process.cwd(), 'content-model', 'schemas', 'site-settings.schema.json');
+  const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
+  const footerNavigationField = schema.fields.find((field) => field.id === 'footerNavigationConfig');
+  const existing = await client.contentType.get({ contentTypeId, spaceId, environmentId });
+
+  if (!footerNavigationField) throw new Error('Missing footerNavigationConfig from the Site Settings schema.');
+  if ((existing.fields || []).some((field) => field.id === footerNavigationField.id)) return;
+
+  await client.contentType.update(
+    { contentTypeId, spaceId, environmentId },
+    { ...existing, fields: [...existing.fields, toFieldDef(footerNavigationField)], sys: { ...existing.sys, version: existing.sys.version } },
+  );
+  const refreshed = await client.contentType.get({ contentTypeId, spaceId, environmentId });
+  await client.contentType.publish(
+    { contentTypeId, spaceId, environmentId },
+    { ...refreshed, sys: { ...refreshed.sys, version: refreshed.sys.version } },
+  );
+  console.log('Added and published Site Settings footer navigation field.');
+}
+
+async function configureSiteSettingsEditor(client, spaceId, environmentId) {
+  const contentTypeId = 'siteSettings';
+  const editorInterface = await client.editorInterface.get({ contentTypeId, spaceId, environmentId });
+  const controls = (editorInterface.controls || []).filter((control) => control.fieldId !== 'footerNavigationConfig');
+  controls.push({ fieldId: 'footerNavigationConfig', widgetNamespace: 'builtin', widgetId: 'objectEditor' });
+
+  await client.editorInterface.update(
+    { contentTypeId, spaceId, environmentId },
+    { ...editorInterface, controls, sys: { version: editorInterface.sys.version } },
+  );
+  console.log('Configured Site Settings footer navigation JSON editor.');
+}
+
 async function upsertEntryBySlug(client, spaceId, environmentId, contentType, slug, fields, { updateExisting = isContentTypeUpdateEnabled(contentType) } = {}) {
   const entryId = `${contentType}--${slug}`.replace(/[^a-zA-Z0-9-_.]/g, '-');
   const existing = await client.entry
@@ -352,6 +387,13 @@ async function run() {
     { accessToken: managementToken },
     { type: 'plain', defaults: { spaceId, environmentId } },
   );
+
+  if (process.env.CONTENTFUL_SYNC_SITE_SETTINGS_ONLY === 'true') {
+    await ensureFooterNavigationField(client, spaceId, environmentId);
+    await configureSiteSettingsEditor(client, spaceId, environmentId);
+    console.log('Scoped Site Settings model sync complete. No entries were changed.');
+    return;
+  }
 
   // 1) Sync content model. A seed-only retry avoids repeating model writes after API throttling.
   if (!process.env.CONTENTFUL_SKIP_MODEL_SYNC) {
@@ -678,6 +720,10 @@ async function run() {
       { label: 'Coaching', enabled: true, items: [{ label: 'Rates', href: '/page/rates', enabled: true }, { label: 'Coaches', href: '/page/coaches', enabled: true }] },
       { label: 'Tournaments', enabled: true, items: [{ label: 'Register', href: '/page/tournament-register', enabled: true }, { label: 'Tournament Results', href: '/page/tournament-results', enabled: true }, { label: 'DGT Links', href: '/page/dgt-links', enabled: true }] },
       { label: 'Contact Us', enabled: true, items: [{ label: 'Form', href: '/contact', enabled: true }, { label: 'Newsletter', href: '/news', enabled: true }] },
+    ] } },
+    footerNavigationConfig: { 'en-US': { groups: [
+      { label: 'Explore', enabled: true, items: [{ label: 'Tournaments', href: '/events', enabled: true }, { label: 'News', href: '/news', enabled: true }, { label: 'About', href: '/#about', enabled: true }] },
+      { label: 'Information', enabled: true, items: [{ label: 'Contact', href: '/contact', enabled: true }, { label: 'Event calendar', href: '/events', enabled: true }] },
     ] } },
   });
 

@@ -75,6 +75,7 @@ export type SiteSettingsEntry = {
   footerText?: string;
   socialLinks?: Array<{ label?: string; url?: string }>;
   navigationConfig?: NavigationConfig;
+  footerNavigationConfig?: NavigationConfig;
 };
 
 export type NavigationItem = {

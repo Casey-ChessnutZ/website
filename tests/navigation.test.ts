@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { getNavigationGroups, getPrimaryNavigation } from '../app/lib/navigation.ts';
+import { getFooterNavigationGroups, getNavigationGroups, getPrimaryNavigation } from '../app/lib/navigation.ts';
 
 test('uses the safe tournament navigation when no CMS navigation is configured', () => {
   assert.deepEqual(getPrimaryNavigation(), [
@@ -40,5 +40,34 @@ test('converts legacy flat items into one-link groups', () => {
   assert.deepEqual(
     getNavigationGroups({ items: [{ label: 'News', href: '/news', enabled: true, style: 'text' }] }),
     [{ label: 'News', href: '/news', items: [] }],
+  );
+});
+
+test('uses the current footer groups when no footer CMS navigation is configured', () => {
+  assert.deepEqual(getFooterNavigationGroups(), [
+    {
+      label: 'Explore',
+      items: [
+        { href: '/events', label: 'Tournaments' },
+        { href: '/news', label: 'News' },
+        { href: '/#about', label: 'About' },
+      ],
+    },
+    {
+      label: 'Information',
+      items: [
+        { href: '/contact', label: 'Contact' },
+        { href: '/events', label: 'Event calendar' },
+      ],
+    },
+  ]);
+});
+
+test('uses enabled footer CMS groups independently of the header navigation', () => {
+  assert.deepEqual(
+    getFooterNavigationGroups({
+      groups: [{ label: 'Support', enabled: true, items: [{ label: 'Help', href: '/help', enabled: true }] }],
+    }),
+    [{ label: 'Support', items: [{ href: '/help', label: 'Help' }] }],
   );
 });

@@ -12,7 +12,7 @@ in the order visitors should see them. A block should use one supported `blockTy
 only the fields that type needs. Publish referenced events and assets before publishing
 the Landing Page.
 
-Use Site Settings for the site name, default metadata, footer copy, and `navigationConfig` primary
-navigation. Navigation items must use internal paths beginning with `/`; mark an item
+Use Site Settings for the site name, default metadata, footer copy, `navigationConfig` primary
+navigation, and `footerNavigationConfig` footer groups. Navigation items must use internal paths beginning with `/`; mark an item
 enabled only when its destination is ready. Do not place secrets, internal operational
 notes, or duplicate event details in public fields.

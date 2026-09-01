@@ -67,6 +67,13 @@
       "type": "Object",
       "required": false,
       "localized": false
+    },
+    {
+      "id": "footerNavigationConfig",
+      "name": "Footer Navigation Configuration",
+      "type": "Object",
+      "required": false,
+      "localized": false
     }
   ]
 }
