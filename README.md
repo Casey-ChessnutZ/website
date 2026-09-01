@@ -17,6 +17,25 @@ RECAPTCHA_SECRET_KEY=
 
 ## Zero-touch content updates
 
+Run the interactive selector for normal local Contentful work:
+
+```bash
+npm run contentful:sync
+```
+
+Use arrow keys to move, Space to select one or more content types, and Enter
+to continue. Select whether to sync the content type schema/editor controls,
+create missing seeded data, or update selected seeded data. The CLI shows the
+scope and requires confirmation before it contacts Contentful. Legacy cleanup
+is intentionally not available from this menu.
+
+For CI or scripted use, retain the non-interactive command and pass explicit
+environment flags:
+
+```bash
+npm run contentful:sync:non-interactive
+```
+
 Zero-touch always creates missing seed entries but will not overwrite or delete existing editor-managed entries by default. To deliberately permit seed updates for a content type, list it in `CONTENTFUL_UPSERT_CONTENT_TYPES`:
 
 ```env

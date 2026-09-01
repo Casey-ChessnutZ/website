@@ -12,12 +12,14 @@
         "verify:isolated": "CONTENTFUL_OFFLINE=true npm run test && CONTENTFUL_OFFLINE=true npm run lint && npm run build:isolated",
         "mcp:start": "npx -y @contentful/mcp-server",
         "migrations:run": "node scripts/run-migrations.js",
-        "contentful:sync": "node scripts/contentful-zero-touch.js",
+        "contentful:sync": "node scripts/contentful-sync-cli.js",
+        "contentful:sync:non-interactive": "node scripts/contentful-zero-touch.js",
         "contentful:sync:site-settings": "CONTENTFUL_SYNC_SITE_SETTINGS_ONLY=true node scripts/contentful-zero-touch.js"
     },
     "dependencies": {
         "@contentful/rich-text-react-renderer": "^16.2.2",
         "@contentful/rich-text-types": "^17.2.7",
+        "@inquirer/prompts": "^8.7.0",
         "@react-email/components": "^1.0.12",
         "@vercel/analytics": "^2.0.1",
         "@vercel/speed-insights": "^2.0.0",

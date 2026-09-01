@@ -1,7 +1,7 @@
 const contentful = require('contentful-management');
 const fs = require('fs');
 const path = require('path');
-const { isContentTypeUpdateEnabled } = require('./contentful-upsert-policy');
+const { isContentTypeSelected, isContentTypeUpdateEnabled } = require('./contentful-upsert-policy');
 
 function loadEnvFile() {
   const envPath = path.join(process.cwd(), '.env.local');
@@ -52,6 +52,10 @@ async function upsertContentType(client, schemaFile, spaceId, environmentId) {
   const schemaPath = path.join(process.cwd(), 'content-model', 'schemas', schemaFile);
   const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
   const contentTypeId = schema.sys.id;
+  if (!isContentTypeSelected(contentTypeId)) {
+    console.log(`Skipped unselected content type: ${contentTypeId}`);
+    return;
+  }
 
   const payload = {
     name: schema.name,
@@ -157,6 +161,7 @@ async function configureSlugEditor(client, schemaFile, spaceId, environmentId) {
   if (!slugField || !trackingFieldId) return;
 
   const contentTypeId = schema.sys.id;
+  if (!isContentTypeSelected(contentTypeId)) return;
   const editorInterface = await client.editorInterface.get({ contentTypeId, spaceId, environmentId });
   const controls = (editorInterface.controls || []).filter((control) => control.fieldId !== 'slug');
   const previousSlugControl = (editorInterface.controls || []).find((control) => control.fieldId === 'slug');
@@ -180,6 +185,7 @@ async function configureSlugEditor(client, schemaFile, spaceId, environmentId) {
 
 async function configureContactFormEditor(client, spaceId, environmentId) {
   const contentTypeId = 'contactForm';
+  if (!isContentTypeSelected(contentTypeId)) return;
   const editorInterface = await client.editorInterface.get({ contentTypeId, spaceId, environmentId });
   const controls = (editorInterface.controls || []).filter((control) => control.fieldId !== 'fields' && control.fieldId !== 'fieldDefinitions');
   controls.push({ fieldId: 'fieldDefinitions', widgetNamespace: 'builtin', widgetId: 'objectEditor' });
@@ -215,6 +221,7 @@ async function ensureFooterNavigationField(client, spaceId, environmentId) {
 
 async function configureSiteSettingsEditor(client, spaceId, environmentId) {
   const contentTypeId = 'siteSettings';
+  if (!isContentTypeSelected(contentTypeId)) return;
   const editorInterface = await client.editorInterface.get({ contentTypeId, spaceId, environmentId });
   const controls = (editorInterface.controls || []).filter((control) => control.fieldId !== 'footerNavigationConfig');
   controls.push({ fieldId: 'footerNavigationConfig', widgetNamespace: 'builtin', widgetId: 'objectEditor' });
@@ -228,6 +235,10 @@ async function configureSiteSettingsEditor(client, spaceId, environmentId) {
 
 async function upsertEntryBySlug(client, spaceId, environmentId, contentType, slug, fields, { updateExisting = isContentTypeUpdateEnabled(contentType) } = {}) {
   const entryId = `${contentType}--${slug}`.replace(/[^a-zA-Z0-9-_.]/g, '-');
+  if (!isContentTypeSelected(contentType)) {
+    console.log(`Skipped unselected entry: ${contentType}/${slug}`);
+    return { sys: { id: entryId } };
+  }
   const existing = await client.entry
     .get({ entryId, spaceId, environmentId })
     .catch(() => null);
@@ -296,6 +307,10 @@ async function upsertEntryBySlug(client, spaceId, environmentId, contentType, sl
 }
 
 async function upsertSingleEntry(client, spaceId, environmentId, contentType, fields, { updateExisting = isContentTypeUpdateEnabled(contentType) } = {}) {
+  if (!isContentTypeSelected(contentType)) {
+    console.log(`Skipped unselected singleton entry: ${contentType}`);
+    return null;
+  }
   const existing = await client.entry
     .getMany({
       spaceId,
@@ -415,6 +430,11 @@ async function run() {
   await configureSlugEditor(client, 'page.schema.json', spaceId, environmentId);
   await configureSlugEditor(client, 'landing-page.schema.json', spaceId, environmentId);
   await configureContactFormEditor(client, spaceId, environmentId);
+  }
+
+  if (process.env.CONTENTFUL_MODEL_ONLY === 'true') {
+    console.log('Selected Contentful model and editor sync complete. No entries were changed.');
+    return;
   }
 
   // Previous generic sectionBlock seed retained only as source-history while the clean migration runs.
