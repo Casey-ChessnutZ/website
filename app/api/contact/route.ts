@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getContactForm } from '@/app/lib/contentful/queries';
 import { sendContactSubmission } from '@/app/lib/contact/contact-mailer';
+import { verifyContactRecaptcha } from '@/app/lib/contact/contact-recaptcha';
 import { validateContactSubmission } from '@/app/lib/contact/contact-submission';
 
 const requestTimes = new Map<string, number[]>();
@@ -14,6 +15,7 @@ export async function POST(request: Request) {
   const payload = await request.json().catch(() => null);
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return NextResponse.json({ error: 'Invalid form submission.' }, { status: 400 });
   if ((payload as Record<string, unknown>).website) return NextResponse.json({ successMessage: 'Thanks — your message has been sent.' });
+  if (!await verifyContactRecaptcha((payload as Record<string, unknown>).recaptchaToken)) return NextResponse.json({ error: 'Security verification failed. Please try again.' }, { status: 400 });
   const form = await getContactForm();
   if (!form) {
     console.error('[contact] form unavailable', {

@@ -10,6 +10,13 @@ test('accepts a published Google Sheet iframe URL', () => {
   );
 });
 
+test('accepts a Google Form iframe URL', () => {
+  assert.equal(
+    getSafeMediaEmbedUrl('https://docs.google.com/forms/d/e/1FAIpQLScZkl6Nqy8m2-LyNHsSJ9wttndss_OaRCJSdHPQpofMVY5d1Q/viewform?embedded=true'),
+    'https://docs.google.com/forms/d/e/1FAIpQLScZkl6Nqy8m2-LyNHsSJ9wttndss_OaRCJSdHPQpofMVY5d1Q/viewform?embedded=true',
+  );
+});
+
 test('rejects an unapproved iframe origin', () => {
   assert.equal(getSafeMediaEmbedUrl('https://untrusted.example/widget'), null);
 });
