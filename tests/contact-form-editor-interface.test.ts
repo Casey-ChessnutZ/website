@@ -11,3 +11,10 @@ test('Contentful sync removes the retired contact fields widget', () => {
   assert.match(source, /fieldId: 'fieldDefinitions'/);
   assert.match(source, /widgetId: 'objectEditor'/);
 });
+
+test('Contentful sync preserves existing editor content unless its content type is enabled for updates', () => {
+  const source = fs.readFileSync(path.join(process.cwd(), 'scripts/contentful-zero-touch.js'), 'utf8');
+
+  assert.match(source, /updateExisting = isContentTypeUpdateEnabled\(contentType\)/);
+  assert.match(source, /isContentTypeUpdateEnabled\('sectionBlock'\)/);
+});

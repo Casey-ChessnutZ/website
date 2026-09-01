@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 import { getSiteSettings } from '@/app/lib/contentful/queries';
+import { siteMetadataAssets } from './site-metadata-assets';
 
 export async function getPageMetadata(
   title?: string,
@@ -16,6 +17,7 @@ export async function getPageMetadata(
   const pageDescription = description ?? siteSettings.defaultSeoDescription;
 
   return {
+    ...siteMetadataAssets,
     title: pageTitle,
     description: pageDescription,
     alternates: {

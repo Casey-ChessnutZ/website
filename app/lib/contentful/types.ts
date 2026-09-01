@@ -184,5 +184,6 @@ export type ContactFormDefinition = {
   title: string;
   intro: string;
   successMessage: string;
+  recipientEmail?: string;
   fields: ContactFieldDefinition[];
 };

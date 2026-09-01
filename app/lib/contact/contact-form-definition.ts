@@ -1,6 +1,7 @@
 import type { ContactFieldDefinition, ContactFieldType, ContactFormDefinition } from '@/app/lib/contentful/types';
 
 const fieldTypes: ContactFieldType[] = ['text', 'email', 'tel', 'select', 'textarea'];
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function asTrimmedString(value: unknown): string | undefined {
   return typeof value === 'string' && value.trim() ? value.trim() : undefined;
@@ -17,6 +18,7 @@ export function mapContactFormItem(item: { fields?: Record<string, unknown> }): 
     title: asTrimmedString(fields.title) ?? 'Contact us',
     intro: asTrimmedString(fields.intro) ?? '',
     successMessage: asTrimmedString(fields.successMessage) ?? 'Thanks — your message has been sent.',
+    ...(asTrimmedString(fields.recipientEmail) && emailPattern.test(asTrimmedString(fields.recipientEmail)!) ? { recipientEmail: asTrimmedString(fields.recipientEmail)! } : {}),
     fields: formFields.flatMap((field): ContactFieldDefinition[] => {
       if (!field || typeof field !== 'object' || Array.isArray(field)) return [];
       const value = field as Record<string, unknown>;

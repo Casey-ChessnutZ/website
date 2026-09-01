@@ -1,6 +1,7 @@
 const contentful = require('contentful-management');
 const fs = require('fs');
 const path = require('path');
+const { isContentTypeUpdateEnabled } = require('./contentful-upsert-policy');
 
 function loadEnvFile() {
   const envPath = path.join(process.cwd(), '.env.local');
@@ -190,13 +191,17 @@ async function configureContactFormEditor(client, spaceId, environmentId) {
   console.log('Configured Contact Form JSON editor.');
 }
 
-async function upsertEntryBySlug(client, spaceId, environmentId, contentType, slug, fields) {
+async function upsertEntryBySlug(client, spaceId, environmentId, contentType, slug, fields, { updateExisting = isContentTypeUpdateEnabled(contentType) } = {}) {
   const entryId = `${contentType}--${slug}`.replace(/[^a-zA-Z0-9-_.]/g, '-');
   const existing = await client.entry
     .get({ entryId, spaceId, environmentId })
     .catch(() => null);
 
   if (existing) {
+    if (!updateExisting) {
+      console.log(`Skipped existing entry: ${contentType}/${slug}`);
+      return existing;
+    }
     const updateVersion = existing?.sys?.version;
     if (!updateVersion) {
       throw new Error(`Missing version for existing entry: ${contentType}/${slug}`);
@@ -255,7 +260,7 @@ async function upsertEntryBySlug(client, spaceId, environmentId, contentType, sl
   return created;
 }
 
-async function upsertSingleEntry(client, spaceId, environmentId, contentType, fields) {
+async function upsertSingleEntry(client, spaceId, environmentId, contentType, fields, { updateExisting = isContentTypeUpdateEnabled(contentType) } = {}) {
   const existing = await client.entry
     .getMany({
       spaceId,
@@ -266,6 +271,10 @@ async function upsertSingleEntry(client, spaceId, environmentId, contentType, fi
     .catch(() => null);
 
   if (existing) {
+    if (!updateExisting) {
+      console.log(`Skipped existing singleton entry: ${contentType}`);
+      return existing;
+    }
     const updateVersion = existing?.sys?.version;
     if (!updateVersion) {
       throw new Error(`Missing version for existing singleton entry: ${contentType}`);
@@ -580,7 +589,7 @@ async function run() {
       { id: 'subject', label: 'Subject', type: 'text', required: true, placeholder: 'How can we help?' },
       { id: 'message', label: 'Message', type: 'textarea', required: true, placeholder: 'Write your message' },
     ] } },
-  });
+  }, { updateExisting: isContentTypeUpdateEnabled('contactForm') });
   const albumImages = [
     'kUYy4ciGDZYmMkpaTPWsE',
     '1j2RDUZUkhcuy3cGGGg4KS',
@@ -607,8 +616,12 @@ async function run() {
   }
 
   if (process.env.CONTENTFUL_FINALIZE_ONLY) {
-    await deleteContentTypeAndEntries(client, 'sectionBlock', spaceId, environmentId);
-    console.log('Legacy Contentful cleanup complete.');
+    if (isContentTypeUpdateEnabled('sectionBlock')) {
+      await deleteContentTypeAndEntries(client, 'sectionBlock', spaceId, environmentId);
+      console.log('Legacy Contentful cleanup complete.');
+    } else {
+      console.log('Skipped legacy Contentful cleanup because sectionBlock is not enabled for updates.');
+    }
     return;
   }
 
@@ -668,7 +681,9 @@ async function run() {
     ] } },
   });
 
-  await deleteContentTypeAndEntries(client, 'sectionBlock', spaceId, environmentId);
+  if (isContentTypeUpdateEnabled('sectionBlock')) {
+    await deleteContentTypeAndEntries(client, 'sectionBlock', spaceId, environmentId);
+  }
 
   console.log('Zero-touch sync complete. Content model and homepage seed are live.');
 }

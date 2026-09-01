@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     console.error('[contact] email configuration unavailable', {
       resendApiKeyConfigured: Boolean(process.env.RESEND_API_KEY),
       contactEmailFromConfigured: Boolean(process.env.CONTACT_EMAIL_FROM),
-      contactEmailToConfigured: Boolean(process.env.CONTACT_EMAIL_TO),
+      contactRecipientConfigured: Boolean(form.recipientEmail),
     });
     return NextResponse.json({ error: 'Contact email is not configured yet.' }, { status: 503 });
   }

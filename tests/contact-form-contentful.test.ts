@@ -25,6 +25,13 @@ test('maps fields stored in the Contentful JSON object', () => {
   );
 });
 
+test('maps the editor-managed recipient email for server-side delivery', () => {
+  assert.deepEqual(
+    mapContactFormItem({ fields: { recipientEmail: 'organiser@example.com' } }),
+    { title: 'Contact us', intro: '', successMessage: 'Thanks — your message has been sent.', recipientEmail: 'organiser@example.com', fields: [] },
+  );
+});
+
 test('drops malformed fields and unsupported field types', () => {
   assert.deepEqual(
     mapContactFormItem({ fields: { title: 'Contact', intro: 'Hello', successMessage: 'Received', fields: [

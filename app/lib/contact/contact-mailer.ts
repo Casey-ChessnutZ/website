@@ -7,7 +7,7 @@ import { getContactMailConfiguration } from './contact-mailer-config';
 export type ContactMailOutcome = 'sent' | 'unavailable' | 'failed';
 
 export async function sendContactSubmission(form: ContactFormDefinition, values: Record<string, string>): Promise<ContactMailOutcome> {
-  const configuration = getContactMailConfiguration();
+  const configuration = getContactMailConfiguration(form.recipientEmail);
   if (!configuration) return 'unavailable';
 
   try {
